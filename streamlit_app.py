@@ -25,24 +25,14 @@ def inject_login_css():
         <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
-        /* ✅ Sayfa Kaymasını Tamamen Kapat */
+        /* ✅ Scroll Engelleme */
         html, body, [data-testid="stVerticalBlock"] {{
             overflow: hidden !important;
             height: 100vh !important;
             margin: 0 !important;
             padding: 0 !important;
-            font-family: 'Inter', sans-serif !important;
         }}
 
-        .stApp {{
-            background: #0f1115;
-            overflow: hidden !important;
-        }}
-
-        header, footer {{ visibility: hidden !important; display: none !important; }}
-        section[data-testid="stSidebar"] {{ display: none !important; }}
-
-        /* ✅ Arka Plan Görseli */
         .stApp {{
             background: linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.3)), url('{LOGIN_BG_URL}');
             background-size: cover;
@@ -50,41 +40,30 @@ def inject_login_css():
             background-attachment: fixed;
         }}
 
-        /* ✅ Merkezi Beyaz Kart Konteynırı */
-        [data-testid="stVerticalBlock"] > div:has(.login-box-anchor) {{
+        /* Streamlit Arayüz Elemanlarını Temizle */
+        header, footer, [data-testid="stSidebar"] {{ visibility: hidden !important; display: none !important; }}
+
+        /* ✅ Giriş Kartı Konteynırı */
+        .main-login-container {{
             background: rgba(255, 255, 255, 0.98);
-            padding: 40px !important;
-            border-radius: 30px !important;
-            box-shadow: 0 40px 100px rgba(0,0,0,0.3) !important;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.5);
-            max-width: 500px;
+            padding: 40px;
+            border-radius: 30px;
+            box-shadow: 0 40px 100px rgba(0,0,0,0.4);
+            max-width: 480px;
             margin: auto;
-            margin-top: 15vh;
+            position: relative;
+            z-index: 10001;
+            text-align: center;
         }}
 
-        /* Çapa div'ini gizle */
-        .login-box-anchor {{
-            display: none;
-        }}
-
-        /* Kompakt Etiketler */
+        /* Etiketler */
         .login-label {{
             color: #1e293b;
             font-weight: 600;
             font-size: 14px;
-            padding-top: 10px;
-            text-align: right;
-            white-space: nowrap; /* ✅ Alt satıra geçmeyi engeller */
-        }}
-
-        /* Input Alanları */
-        .stTextInput input {{
-            border-radius: 12px !important;
-            border: 1px solid #e2e8f0 !important;
-            background: #f8fafc !important;
-            height: 2.8rem !important;
-            color: #0f172a !important;
+            padding-top: 8px;
+            text-align: left;
+            white-space: nowrap;
         }}
 
         /* ✅ Turuncu Buton */
@@ -96,24 +75,28 @@ def inject_login_css():
             font-weight: 700 !important;
             height: 3.2rem !important;
             width: 100% !important;
-            margin-top: 20px !important;
+            margin-top: 10px !important;
             transition: 0.3s all !important;
-            box-shadow: 0 4px 15px rgba(255, 123, 0, 0.2) !important;
+            box-shadow: 0 4px 15px rgba(255, 123, 0, 0.3) !important;
         }}
 
         div.stButton > button:hover {{
             background: #e66f00 !important;
             transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(255, 123, 0, 0.3) !important;
+            box-shadow: 0 8px 25px rgba(255, 123, 0, 0.4) !important;
         }}
 
-        .login-footer {{
-            text-align: center;
-            font-size: 10px;
-            color: #94a3b8;
-            margin-top: 25px;
-            letter-spacing: 1px;
-            font-weight: 500;
+        /* Input Alanları */
+        .stTextInput input {{
+            border-radius: 10px !important;
+            border: 1px solid #e2e8f0 !important;
+            background: #f8fafc !important;
+            height: 2.6rem !important;
+            color: #0f172a !important;
+        }}
+        
+        .stTextInput div[data-baseweb="input"] {{
+            border: none !important;
         }}
         </style>
         """,
@@ -126,25 +109,28 @@ def login_screen():
     if "auth" not in st.session_state:
         st.session_state.auth = False
 
-    _, mid, _ = st.columns([1, 2, 1])
+    # Dikeyde ortalamak için
+    st.write("<div style='height: 18vh;'></div>", unsafe_allow_html=True)
+    
+    _, mid, _ = st.columns([1, 1.4, 1])
     
     with mid:
-        # Stil yakalayıcı çapa (görünmez)
-        st.markdown('<div class="login-box-anchor"></div>', unsafe_allow_html=True)
+        # Kart Başlangıcı
+        st.markdown('<div class="main-login-container">', unsafe_allow_html=True)
         
         # Logo
         st.image(LOGO_URL, width=220)
         st.write("<div style='height: 15px;'></div>", unsafe_allow_html=True)
         
-        # Kullanıcı Adı Satırı - Oranlar genişletildi
-        l1, i1 = st.columns([0.6, 1])
+        # Kullanıcı Adı Satırı
+        l1, i1 = st.columns([0.5, 1])
         with l1:
             st.markdown('<p class="login-label">Kullanıcı Adı:</p>', unsafe_allow_html=True)
         with i1:
             username = st.text_input("U", placeholder="E-posta veya kullanıcı adı", key="u_field", label_visibility="collapsed")
         
         # Şifre Satırı
-        l2, i2 = st.columns([0.6, 1])
+        l2, i2 = st.columns([0.5, 1])
         with l2:
             st.markdown('<p class="login-label">Şifre:</p>', unsafe_allow_html=True)
         with i2:
@@ -160,7 +146,8 @@ def login_screen():
             else:
                 st.error("Giriş bilgileri hatalı!")
         
-        st.markdown('<p class="login-footer">BETTERWAY AKADEMİ GÜVENLİ ERİŞİM © 2026</p>', unsafe_allow_html=True)
+        st.markdown('<p style="text-align:center; margin-top:20px; font-size:10px; color:#94a3b8; font-weight:500; letter-spacing:1px;">BETTERWAY AKADEMİ GÜVENLİ ERİŞİM © 2026</p>', unsafe_allow_html=True)
+        st.markdown('</div>', unsafe_allow_html=True)
 
 # =========================================================
 # 2) APP LOGIC
