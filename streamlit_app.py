@@ -6,7 +6,7 @@ import plotly.graph_objects as go
 # =========================================================
 # 0) SAYFA AYARLARI
 # =========================================================
-st.set_page_config(page_title="BetterWay Akademi | Pro Dashboard", layout="wide", page_icon="🏎️")
+st.set_page_config(page_title="BetterWay Akademi | Giriş", layout="wide", page_icon="🏎️")
 
 # =========================================================
 # 1) CONFIG & AUTH
@@ -23,86 +23,98 @@ def inject_login_css():
     st.markdown(
         f"""
         <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
-        /* ✅ Scroll ve Varsayılanları Sıfırla */
+        /* ✅ Scroll ve Kaydırmayı Tamamen Kapat */
         html, body, [data-testid="stVerticalBlock"] {{
             overflow: hidden !important;
             height: 100vh !important;
+            margin: 0 !important;
+            padding: 0 !important;
             font-family: 'Inter', sans-serif !important;
         }}
 
-        /* ✅ Arka Plan Görseli - En Altta */
         .stApp {{
-            background: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.4)), url('{LOGIN_BG_URL}');
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
+            background: #0f1115;
+            overflow: hidden !important;
         }}
 
-        /* Streamlit Bileşenlerini Gizle */
         header, footer {{ visibility: hidden !important; }}
         section[data-testid="stSidebar"] {{ display: none !important; }}
 
-        /* ✅ Beyaz Yumuşak Köşeli Giriş Kartı Konteynırı */
-        [data-testid="stVerticalBlock"] > div:has(.login-card-anchor) {{
+        /* ✅ Fullscreen Background */
+        .login-wrapper {{
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            background: linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.3)), url('{LOGIN_BG_URL}');
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }}
+
+        /* ✅ Kompakt Beyaz Kart */
+        .login-card {{
             background: rgba(255, 255, 255, 0.98);
-            padding: 50px 40px !important;
-            border-radius: 40px !important;
-            box-shadow: 0 40px 100px rgba(0,0,0,0.3) !important;
+            padding: 30px 40px;
+            border-radius: 25px;
+            box-shadow: 0 30px 80px rgba(0,0,0,0.3);
+            width: 95%;
+            max-width: 480px;
+            text-align: center;
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255,255,255,0.5);
-            max-width: 440px;
-            margin: auto;
         }}
 
-        .login-text-center {{
-            text-align: center;
-            width: 100%;
+        .login-card img {{
+            width: 180px;
+            margin-bottom: 20px;
         }}
 
-        .login-card-h2 {{
-            color: #0f172a;
-            font-weight: 700;
-            font-size: 28px;
-            margin-bottom: 8px;
-            letter-spacing: -1px;
-            text-align: center;
+        /* Etiketler ve Inputlar İçin Grid */
+        .stTextInput label {{
+            color: #1e293b !important;
+            font-weight: 600 !important;
+            font-size: 14px !important;
+            margin-bottom: 0 !important;
+            padding-bottom: 5px !important;
         }}
 
-        .login-card-p {{
-            color: #64748b;
-            font-size: 15px;
-            margin-bottom: 30px;
-            text-align: center;
-        }}
-
-        /* Input Tasarımları */
         .stTextInput input {{
-            border-radius: 16px !important;
+            border-radius: 12px !important;
             border: 1px solid #e2e8f0 !important;
             background: #f8fafc !important;
-            height: 3.5rem !important;
+            height: 2.8rem !important;
             color: #0f172a !important;
         }}
 
-        /* Giriş Butonu */
+        /* ✅ Turuncu Giriş Butonu */
         div.stButton > button {{
-            background: #1e253d !important;
+            background: #ff7b00 !important; /* Canlı Turuncu */
             color: white !important;
-            border-radius: 16px !important;
+            border-radius: 12px !important;
             border: none !important;
-            font-weight: 600 !important;
-            height: 3.8rem !important;
+            font-weight: 700 !important;
+            height: 3.2rem !important;
             width: 100% !important;
-            margin-top: 15px !important;
+            margin-top: 20px !important;
             transition: 0.3s all !important;
+            font-size: 16px !important;
         }}
 
         div.stButton > button:hover {{
-            background: #e63946 !important;
-            box-shadow: 0 10px 20px rgba(230, 57, 70, 0.3) !important;
+            background: #e66f00 !important;
+            box-shadow: 0 8px 15px rgba(255, 123, 0, 0.3) !important;
             transform: translateY(-2px);
+        }}
+
+        /* Hata Mesajı Stili */
+        .stAlert {{
+            border-radius: 12px !important;
+            margin-top: 10px !important;
         }}
         </style>
         """,
@@ -112,25 +124,32 @@ def inject_login_css():
 def login_screen():
     inject_login_css()
     
-    # Sayfayı dikeyde ortalamak için boşluk
-    st.write("<div style='height: 15vh;'></div>", unsafe_allow_html=True)
+    if "auth" not in st.session_state:
+        st.session_state.auth = False
+
+    st.markdown('<div class="login-wrapper">', unsafe_allow_html=True)
     
-    _, mid, _ = st.columns([1, 1.2, 1])
-    
+    # Sayfada konumlandırma
+    _, mid, _ = st.columns([1, 1.8, 1])
     with mid:
-        # Bu div CSS seçicisi için çapa görevi görür
-        st.markdown('<div class="login-card-anchor"></div>', unsafe_allow_html=True)
+        st.markdown('<div class="login-card">', unsafe_allow_html=True)
+        st.image(LOGO_URL)
         
-        st.markdown("<div class='login-text-center'>", unsafe_allow_html=True)
-        st.image(LOGO_URL, width=240)
-        st.markdown("<h2 class='login-card-h2'>Hoş Geldiniz</h2>", unsafe_allow_html=True)
-        st.markdown("<p class='login-card-p'>Akademi paneline erişmek için giriş yapın</p>", unsafe_allow_html=True)
-        st.markdown("</div>", unsafe_allow_html=True)
+        # Kullanıcı Adı Satırı
+        c1, c2 = st.columns([1, 2])
+        with c1:
+            st.markdown("<p style='color:#1e293b; font-weight:600; text-align:left; margin-top:10px;'>Kullanıcı Adı:</p>", unsafe_allow_html=True)
+        with c2:
+            username = st.text_input("U", placeholder="E-posta veya kullanıcı adı", key="u_field", label_visibility="collapsed")
         
-        username = st.text_input("Kullanıcı Adı", placeholder="Kullanıcı adınız", key="u_field", label_visibility="collapsed")
-        password = st.text_input("Şifre", type="password", placeholder="Şifreniz", key="p_field", label_visibility="collapsed")
+        # Şifre Satırı
+        s1, s2 = st.columns([1, 2])
+        with s1:
+            st.markdown("<p style='color:#1e293b; font-weight:600; text-align:left; margin-top:10px;'>Şifre:</p>", unsafe_allow_html=True)
+        with s2:
+            password = st.text_input("P", type="password", placeholder="Şifreniz", key="p_field", label_visibility="collapsed")
         
-        if st.button("Sisteme Giriş Yap"):
+        if st.button("SİSTEME GİRİŞ YAP"):
             u = username.strip().lower()
             if u in VALID_USERS and VALID_USERS[u]["password"] == password:
                 st.session_state.auth = True
@@ -140,7 +159,9 @@ def login_screen():
             else:
                 st.error("Giriş bilgileri hatalı!")
         
-        st.markdown('<p style="text-align:center; margin-top:25px; font-size:12px; color:#94a3b8; font-weight:500;">BetterWay Intelligence © 2026</p>', unsafe_allow_html=True)
+        st.markdown('<p style="margin-top:20px; font-size:10px; color:#94a3b8; letter-spacing:1px;">BETTERWAY AKADEMİ GÜVENLİ ERİŞİM</p>', unsafe_allow_html=True)
+        st.markdown('</div>', unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
 
 # =========================================================
 # 2) APP LOGIC
@@ -265,7 +286,6 @@ with st.sidebar:
 
 # --- MAIN PANEL CONTENT ---
 if menu == "🔍 Sürücü Sorgula" and 'secilen_surucu' in locals() and secilen_surucu != "Seçiniz...":
-    # PERSONEL KARTI
     row = df_surucu[df_surucu['Sürücü Adı'] == secilen_surucu].iloc[0]
     st.markdown(f"""
         <div class="hero-profile">
@@ -291,7 +311,6 @@ if menu == "🔍 Sürücü Sorgula" and 'secilen_surucu' in locals() and secilen
         </div>
     """, unsafe_allow_html=True)
 else:
-    # DASHBOARD
     k1, k2, k3, k4 = st.columns(4)
     with k1: st.markdown(f'<div class="glass-card"><div class="kpi-title">Toplam Katılımcı</div><div class="kpi-value">{int(df_genel["KATILIMCI SAYISI"].sum())}</div></div>', unsafe_allow_html=True)
     with k2: st.markdown(f'<div class="glass-card"><div class="kpi-title">Toplam İşe Alım</div><div class="kpi-value">{int(pd.to_numeric(df_genel["İŞE ALIM"], errors="coerce").sum())}</div></div>', unsafe_allow_html=True)
