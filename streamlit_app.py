@@ -25,38 +25,57 @@ def inject_login_css():
         <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
-        /* ✅ Arka Plan ve Kaydırma Engelleme */
+        /* ✅ Sayfa Kaymasını Tamamen Kapat */
+        html, body, [data-testid="stVerticalBlock"] {{
+            overflow: hidden !important;
+            height: 100vh !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            font-family: 'Inter', sans-serif !important;
+        }}
+
+        .stApp {{
+            background: #0f1115;
+            overflow: hidden !important;
+        }}
+
+        header, footer {{ visibility: hidden !important; display: none !important; }}
+        section[data-testid="stSidebar"] {{ display: none !important; }}
+
+        /* ✅ Arka Plan Görseli */
         .stApp {{
             background: linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.3)), url('{LOGIN_BG_URL}');
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
-            overflow: hidden !important;
         }}
 
-        /* Streamlit Varsayılan Elemanlarını Gizle */
-        header, footer, [data-testid="stSidebar"] {{ visibility: hidden !important; display: none !important; }}
-
-        /* ✅ Merkezi Beyaz Kart */
-        [data-testid="stVerticalBlock"] > div:has(.login-box) {{
+        /* ✅ Merkezi Beyaz Kart Konteynırı */
+        [data-testid="stVerticalBlock"] > div:has(.login-box-anchor) {{
             background: rgba(255, 255, 255, 0.98);
-            padding: 30px 40px !important;
+            padding: 40px !important;
             border-radius: 30px !important;
             box-shadow: 0 40px 100px rgba(0,0,0,0.3) !important;
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255,255,255,0.5);
-            max-width: 460px;
+            max-width: 500px;
             margin: auto;
-            margin-top: 10vh;
+            margin-top: 15vh;
         }}
 
-        /* Kompakt Yazılar */
+        /* Çapa div'ini gizle */
+        .login-box-anchor {{
+            display: none;
+        }}
+
+        /* Kompakt Etiketler */
         .login-label {{
             color: #1e293b;
             font-weight: 600;
             font-size: 14px;
-            padding-top: 8px;
+            padding-top: 10px;
             text-align: right;
+            white-space: nowrap; /* ✅ Alt satıra geçmeyi engeller */
         }}
 
         /* Input Alanları */
@@ -64,7 +83,7 @@ def inject_login_css():
             border-radius: 12px !important;
             border: 1px solid #e2e8f0 !important;
             background: #f8fafc !important;
-            height: 2.6rem !important;
+            height: 2.8rem !important;
             color: #0f172a !important;
         }}
 
@@ -75,9 +94,9 @@ def inject_login_css():
             border-radius: 12px !important;
             border: none !important;
             font-weight: 700 !important;
-            height: 3rem !important;
+            height: 3.2rem !important;
             width: 100% !important;
-            margin-top: 15px !important;
+            margin-top: 20px !important;
             transition: 0.3s all !important;
             box-shadow: 0 4px 15px rgba(255, 123, 0, 0.2) !important;
         }}
@@ -92,8 +111,9 @@ def inject_login_css():
             text-align: center;
             font-size: 10px;
             color: #94a3b8;
-            margin-top: 20px;
+            margin-top: 25px;
             letter-spacing: 1px;
+            font-weight: 500;
         }}
         </style>
         """,
@@ -106,26 +126,25 @@ def login_screen():
     if "auth" not in st.session_state:
         st.session_state.auth = False
 
-    # Layout Sütunları
-    _, mid, _ = st.columns([1, 1.4, 1])
+    _, mid, _ = st.columns([1, 2, 1])
     
     with mid:
-        # Görünmez bir çapa sınıfı ekliyoruz
-        st.markdown('<div class="login-box"></div>', unsafe_allow_html=True)
+        # Stil yakalayıcı çapa (görünmez)
+        st.markdown('<div class="login-box-anchor"></div>', unsafe_allow_html=True)
         
         # Logo
-        st.image(LOGO_URL, width=200)
-        st.write("<div style='height: 10px;'></div>", unsafe_allow_html=True)
+        st.image(LOGO_URL, width=220)
+        st.write("<div style='height: 15px;'></div>", unsafe_allow_html=True)
         
-        # Kullanıcı Adı Satırı
-        l1, i1 = st.columns([0.45, 1])
+        # Kullanıcı Adı Satırı - Oranlar genişletildi
+        l1, i1 = st.columns([0.6, 1])
         with l1:
             st.markdown('<p class="login-label">Kullanıcı Adı:</p>', unsafe_allow_html=True)
         with i1:
             username = st.text_input("U", placeholder="E-posta veya kullanıcı adı", key="u_field", label_visibility="collapsed")
         
         # Şifre Satırı
-        l2, i2 = st.columns([0.45, 1])
+        l2, i2 = st.columns([0.6, 1])
         with l2:
             st.markdown('<p class="login-label">Şifre:</p>', unsafe_allow_html=True)
         with i2:
@@ -153,7 +172,7 @@ if not st.session_state.auth:
     login_screen()
     st.stop()
 
-# --- DASHBOARD CSS (SADECE GİRİŞ YAPILDIĞINDA AKTİF OLUR) ---
+# --- DASHBOARD CSS ---
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
