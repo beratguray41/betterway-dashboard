@@ -142,7 +142,7 @@ df_hata = load_data(HATA_OZETI_GID)
 
 # --- SIDEBAR NAVİGASYON ---
 with st.sidebar:
-    st.image("https://www.betterway.com.tr/wp-content/uploads/2021/05/logo.png", width=180)
+    st.image("https://res.cloudinary.com/dkdgj03sl/image/upload/v1769850715/Black_and_Red_Car_Animated_Logo-8_ebzsvo.png", width=180)
     st.markdown("<div style='margin-bottom: 30px;'></div>", unsafe_allow_html=True)
     
     menu = st.radio(
