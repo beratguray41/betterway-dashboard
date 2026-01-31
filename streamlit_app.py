@@ -25,95 +25,83 @@ def inject_login_css():
         <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
-        /* ✅ Sayfa Kaymasını Engelle */
+        /* ✅ Scroll ve Varsayılanları Sıfırla */
         html, body, [data-testid="stVerticalBlock"] {{
             overflow: hidden !important;
             height: 100vh !important;
-            margin: 0 !important;
-            padding: 0 !important;
             font-family: 'Inter', sans-serif !important;
         }}
 
+        /* ✅ Arka Plan Görseli - En Altta */
         .stApp {{
-            background: #0f1115;
-            overflow: hidden !important;
-        }}
-
-        /* Streamlit Header/Footer Gizle */
-        header, footer {{ visibility: hidden !important; }}
-        section[data-testid="stSidebar"] {{ display: none !important; }}
-
-        /* ✅ Arka Plan Görseli */
-        .login-wrapper {{
-            position: fixed;
-            top: 0; left: 0;
-            width: 100vw; height: 100vh;
             background: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.4)), url('{LOGIN_BG_URL}');
             background-size: cover;
             background-position: center;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 9999;
+            background-attachment: fixed;
         }}
 
-        /* ✅ Beyaz Yumuşak Köşeli Giriş Kartı */
-        .login-card {{
+        /* Streamlit Bileşenlerini Gizle */
+        header, footer {{ visibility: hidden !important; }}
+        section[data-testid="stSidebar"] {{ display: none !important; }}
+
+        /* ✅ Beyaz Yumuşak Köşeli Giriş Kartı Konteynırı */
+        [data-testid="stVerticalBlock"] > div:has(.login-card-anchor) {{
             background: rgba(255, 255, 255, 0.98);
-            padding: 50px 40px;
-            border-radius: 40px;
-            box-shadow: 0 40px 100px rgba(0,0,0,0.3);
-            width: 90%;
-            max-width: 420px;
-            text-align: center;
+            padding: 50px 40px !important;
+            border-radius: 40px !important;
+            box-shadow: 0 40px 100px rgba(0,0,0,0.3) !important;
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255,255,255,0.5);
+            max-width: 440px;
+            margin: auto;
         }}
 
-        .login-card img {{
-            width: 220px;
-            margin-bottom: 25px;
+        .login-text-center {{
+            text-align: center;
+            width: 100%;
         }}
 
-        .login-card h2 {{
+        .login-card-h2 {{
             color: #0f172a;
             font-weight: 700;
-            font-size: 26px;
+            font-size: 28px;
             margin-bottom: 8px;
             letter-spacing: -1px;
+            text-align: center;
         }}
 
-        .login-card p {{
+        .login-card-p {{
             color: #64748b;
-            font-size: 14px;
+            font-size: 15px;
             margin-bottom: 30px;
+            text-align: center;
         }}
 
-        /* Inputlar */
+        /* Input Tasarımları */
         .stTextInput input {{
             border-radius: 16px !important;
             border: 1px solid #e2e8f0 !important;
             background: #f8fafc !important;
-            height: 3.2rem !important;
+            height: 3.5rem !important;
             color: #0f172a !important;
         }}
 
-        /* Buton */
+        /* Giriş Butonu */
         div.stButton > button {{
             background: #1e253d !important;
             color: white !important;
             border-radius: 16px !important;
             border: none !important;
             font-weight: 600 !important;
-            height: 3.5rem !important;
+            height: 3.8rem !important;
             width: 100% !important;
-            margin-top: 10px !important;
+            margin-top: 15px !important;
             transition: 0.3s all !important;
         }}
 
         div.stButton > button:hover {{
             background: #e63946 !important;
-            box-shadow: 0 10px 20px rgba(230, 57, 70, 0.2) !important;
+            box-shadow: 0 10px 20px rgba(230, 57, 70, 0.3) !important;
             transform: translateY(-2px);
         }}
         </style>
@@ -124,37 +112,35 @@ def inject_login_css():
 def login_screen():
     inject_login_css()
     
-    # Session state init
-    if "auth" not in st.session_state:
-        st.session_state.auth = False
-
-    st.markdown('<div class="login-wrapper">', unsafe_allow_html=True)
+    # Sayfayı dikeyde ortalamak için boşluk
+    st.write("<div style='height: 15vh;'></div>", unsafe_allow_html=True)
     
-    # Sütunlarla tam orta hizalama desteği
-    _, mid, _ = st.columns([1, 1.5, 1])
+    _, mid, _ = st.columns([1, 1.2, 1])
+    
     with mid:
-        st.markdown('<div class="login-card">', unsafe_allow_html=True)
-        st.image(LOGO_URL)
-        st.markdown("<h2>Hoş Geldiniz</h2>", unsafe_allow_html=True)
-        st.markdown("<p>Analiz paneline erişmek için bilgilerinizi girin</p>", unsafe_allow_html=True)
+        # Bu div CSS seçicisi için çapa görevi görür
+        st.markdown('<div class="login-card-anchor"></div>', unsafe_allow_html=True)
         
-        with st.container():
-            username = st.text_input("Kullanıcı Adı", placeholder="Kullanıcı adınız", key="u_field", label_visibility="collapsed")
-            password = st.text_input("Şifre", type="password", placeholder="Şifreniz", key="p_field", label_visibility="collapsed")
-            
-            if st.button("Giriş Yap"):
-                u = username.strip().lower()
-                if u in VALID_USERS and VALID_USERS[u]["password"] == password:
-                    st.session_state.auth = True
-                    st.session_state.user = u
-                    st.session_state.firm = VALID_USERS[u]["firm"]
-                    st.rerun()
-                else:
-                    st.error("Giriş bilgileri hatalı!")
+        st.markdown("<div class='login-text-center'>", unsafe_allow_html=True)
+        st.image(LOGO_URL, width=240)
+        st.markdown("<h2 class='login-card-h2'>Hoş Geldiniz</h2>", unsafe_allow_html=True)
+        st.markdown("<p class='login-card-p'>Akademi paneline erişmek için giriş yapın</p>", unsafe_allow_html=True)
+        st.markdown("</div>", unsafe_allow_html=True)
         
-        st.markdown('<p style="margin-top:25px; font-size:11px; opacity:0.5;">BetterWay Intelligence © 2026</p>', unsafe_allow_html=True)
-        st.markdown('</div>', unsafe_allow_html=True)
-    st.markdown('</div>', unsafe_allow_html=True)
+        username = st.text_input("Kullanıcı Adı", placeholder="Kullanıcı adınız", key="u_field", label_visibility="collapsed")
+        password = st.text_input("Şifre", type="password", placeholder="Şifreniz", key="p_field", label_visibility="collapsed")
+        
+        if st.button("Sisteme Giriş Yap"):
+            u = username.strip().lower()
+            if u in VALID_USERS and VALID_USERS[u]["password"] == password:
+                st.session_state.auth = True
+                st.session_state.user = u
+                st.session_state.firm = VALID_USERS[u]["firm"]
+                st.rerun()
+            else:
+                st.error("Giriş bilgileri hatalı!")
+        
+        st.markdown('<p style="text-align:center; margin-top:25px; font-size:12px; color:#94a3b8; font-weight:500;">BetterWay Intelligence © 2026</p>', unsafe_allow_html=True)
 
 # =========================================================
 # 2) APP LOGIC
@@ -171,32 +157,35 @@ st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
 
-html, body, [class*="css"] {
-    font-family: 'Inter', sans-serif;
-    background-color: #0f1115;
-}
+html, body {{
+    overflow: auto !important;
+    height: auto !important;
+}}
 
-.stApp {
-    background: radial-gradient(circle at top right, #1d1f27, #0f1115);
-}
+.stApp {{
+    background: radial-gradient(circle at top right, #1d1f27, #0f1115) !important;
+}}
 
-[data-testid="stSidebar"] {
+[data-testid="stSidebar"] {{
     background-color: #161920;
     border-right: 1px solid #2d3139;
-}
+    display: flex !important;
+}}
 
-.glass-card {
+header, footer {{ visibility: visible !important; }}
+
+.glass-card {{
     background: rgba(255, 255, 255, 0.03);
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 16px;
     padding: 24px;
     transition: all 0.3s ease;
-}
+}}
 
-.kpi-title { color: #94a3b8; font-size: 14px; font-weight: 600; text-transform: uppercase; }
-.kpi-value { color: #ffffff; font-size: 32px; font-weight: 700; margin-top: 8px; }
+.kpi-title {{ color: #94a3b8; font-size: 14px; font-weight: 600; text-transform: uppercase; }}
+.kpi-value {{ color: #ffffff; font-size: 32px; font-weight: 700; margin-top: 8px; }}
 
-.hero-profile {
+.hero-profile {{
     background: linear-gradient(135deg, #1e222d 0%, #161920 100%);
     border-radius: 24px;
     padding: 40px;
@@ -204,9 +193,9 @@ html, body, [class*="css"] {
     margin-bottom: 30px;
     position: relative;
     overflow: hidden;
-}
+}}
 
-.score-ring {
+.score-ring {{
     background: transparent;
     border: 4px solid #e63946;
     color: #e63946;
@@ -214,9 +203,9 @@ html, body, [class*="css"] {
     border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
     font-size: 32px; font-weight: 800;
-}
+}}
 
-.download-btn {
+.download-btn {{
     background: #e63946;
     color: white !important;
     padding: 10px 20px;
@@ -227,7 +216,7 @@ html, body, [class*="css"] {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-}
+}}
 </style>
 """, unsafe_allow_html=True)
 
@@ -272,7 +261,7 @@ with st.sidebar:
             secilen_surucu = st.selectbox("Personel Ara", options=["Seçiniz..."] + ismler)
     
     st.markdown("---")
-    st.caption("BetterWay Intelligence v8.6")
+    st.caption("BetterWay Intelligence v8.7")
 
 # --- MAIN PANEL CONTENT ---
 if menu == "🔍 Sürücü Sorgula" and 'secilen_surucu' in locals() and secilen_surucu != "Seçiniz...":
