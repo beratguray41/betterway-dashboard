@@ -25,78 +25,96 @@ def inject_login_css():
         <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
-        /* ✅ Scroll Engelleme */
+        /* ✅ Scroll ve Kaydırmayı Tamamen Kapat */
         html, body, [data-testid="stVerticalBlock"] {{
             overflow: hidden !important;
             height: 100vh !important;
             margin: 0 !important;
             padding: 0 !important;
+            font-family: 'Inter', sans-serif !important;
         }}
 
         .stApp {{
+            background: #0f1115;
+            overflow: hidden !important;
+        }}
+
+        header, footer {{ visibility: hidden !important; }}
+        section[data-testid="stSidebar"] {{ display: none !important; }}
+
+        /* ✅ Fullscreen Background */
+        .login-wrapper {{
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
             background: linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.3)), url('{LOGIN_BG_URL}');
             background-size: cover;
             background-position: center;
-            background-attachment: fixed;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
         }}
 
-        /* Streamlit Arayüz Elemanlarını Temizle */
-        header, footer, [data-testid="stSidebar"] {{ visibility: hidden !important; display: none !important; }}
-
-        /* ✅ Giriş Kartı Konteynırı */
-        .main-login-container {{
+        /* ✅ Kompakt Beyaz Kart */
+        .login-card {{
             background: rgba(255, 255, 255, 0.98);
-            padding: 40px;
-            border-radius: 30px;
-            box-shadow: 0 40px 100px rgba(0,0,0,0.4);
+            padding: 30px 40px;
+            border-radius: 25px;
+            box-shadow: 0 30px 80px rgba(0,0,0,0.3);
+            width: 95%;
             max-width: 480px;
-            margin: auto;
-            position: relative;
-            z-index: 10001;
             text-align: center;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.5);
         }}
 
-        /* Etiketler */
-        .login-label {{
-            color: #1e293b;
-            font-weight: 600;
-            font-size: 14px;
-            padding-top: 8px;
-            text-align: left;
-            white-space: nowrap;
+        .login-card img {{
+            width: 180px;
+            margin-bottom: 20px;
         }}
 
-        /* ✅ Turuncu Buton */
+        /* Etiketler ve Inputlar İçin Grid */
+        .stTextInput label {{
+            color: #1e293b !important;
+            font-weight: 600 !important;
+            font-size: 14px !important;
+            margin-bottom: 0 !important;
+            padding-bottom: 5px !important;
+        }}
+
+        .stTextInput input {{
+            border-radius: 12px !important;
+            border: 1px solid #e2e8f0 !important;
+            background: #f8fafc !important;
+            height: 2.8rem !important;
+            color: #0f172a !important;
+        }}
+
+        /* ✅ Turuncu Giriş Butonu */
         div.stButton > button {{
-            background: #ff7b00 !important;
+            background: #ff7b00 !important; /* Canlı Turuncu */
             color: white !important;
             border-radius: 12px !important;
             border: none !important;
             font-weight: 700 !important;
             height: 3.2rem !important;
             width: 100% !important;
-            margin-top: 10px !important;
+            margin-top: 20px !important;
             transition: 0.3s all !important;
-            box-shadow: 0 4px 15px rgba(255, 123, 0, 0.3) !important;
+            font-size: 16px !important;
         }}
 
         div.stButton > button:hover {{
             background: #e66f00 !important;
+            box-shadow: 0 8px 15px rgba(255, 123, 0, 0.3) !important;
             transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(255, 123, 0, 0.4) !important;
         }}
 
-        /* Input Alanları */
-        .stTextInput input {{
-            border-radius: 10px !important;
-            border: 1px solid #e2e8f0 !important;
-            background: #f8fafc !important;
-            height: 2.6rem !important;
-            color: #0f172a !important;
-        }}
-        
-        .stTextInput div[data-baseweb="input"] {{
-            border: none !important;
+        /* Hata Mesajı Stili */
+        .stAlert {{
+            border-radius: 12px !important;
+            margin-top: 10px !important;
         }}
         </style>
         """,
@@ -109,31 +127,26 @@ def login_screen():
     if "auth" not in st.session_state:
         st.session_state.auth = False
 
-    # Dikeyde ortalamak için
-    st.write("<div style='height: 18vh;'></div>", unsafe_allow_html=True)
+    st.markdown('<div class="login-wrapper">', unsafe_allow_html=True)
     
-    _, mid, _ = st.columns([1, 1.4, 1])
-    
+    # Sayfada konumlandırma
+    _, mid, _ = st.columns([1, 1.8, 1])
     with mid:
-        # Kart Başlangıcı
-        st.markdown('<div class="main-login-container">', unsafe_allow_html=True)
-        
-        # Logo
-        st.image(LOGO_URL, width=220)
-        st.write("<div style='height: 15px;'></div>", unsafe_allow_html=True)
+        st.markdown('<div class="login-card">', unsafe_allow_html=True)
+        st.image(LOGO_URL)
         
         # Kullanıcı Adı Satırı
-        l1, i1 = st.columns([0.5, 1])
-        with l1:
-            st.markdown('<p class="login-label">Kullanıcı Adı:</p>', unsafe_allow_html=True)
-        with i1:
+        c1, c2 = st.columns([1, 2])
+        with c1:
+            st.markdown("<p style='color:#1e293b; font-weight:600; text-align:left; margin-top:10px;'>Kullanıcı Adı:</p>", unsafe_allow_html=True)
+        with c2:
             username = st.text_input("U", placeholder="E-posta veya kullanıcı adı", key="u_field", label_visibility="collapsed")
         
         # Şifre Satırı
-        l2, i2 = st.columns([0.5, 1])
-        with l2:
-            st.markdown('<p class="login-label">Şifre:</p>', unsafe_allow_html=True)
-        with i2:
+        s1, s2 = st.columns([1, 2])
+        with s1:
+            st.markdown("<p style='color:#1e293b; font-weight:600; text-align:left; margin-top:10px;'>Şifre:</p>", unsafe_allow_html=True)
+        with s2:
             password = st.text_input("P", type="password", placeholder="Şifreniz", key="p_field", label_visibility="collapsed")
         
         if st.button("SİSTEME GİRİŞ YAP"):
@@ -146,8 +159,9 @@ def login_screen():
             else:
                 st.error("Giriş bilgileri hatalı!")
         
-        st.markdown('<p style="text-align:center; margin-top:20px; font-size:10px; color:#94a3b8; font-weight:500; letter-spacing:1px;">BETTERWAY AKADEMİ GÜVENLİ ERİŞİM © 2026</p>', unsafe_allow_html=True)
+        st.markdown('<p style="margin-top:20px; font-size:10px; color:#94a3b8; letter-spacing:1px;">BETTERWAY AKADEMİ GÜVENLİ ERİŞİM</p>', unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
 
 # =========================================================
 # 2) APP LOGIC
@@ -164,10 +178,22 @@ st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
 
-html, body {{ overflow: auto !important; height: auto !important; }}
-.stApp {{ background: radial-gradient(circle at top right, #1d1f27, #0f1115) !important; }}
-[data-testid="stSidebar"] {{ background-color: #161920; border-right: 1px solid #2d3139; display: flex !important; visibility: visible !important; }}
-header {{ visibility: visible !important; display: block !important; }}
+html, body {{
+    overflow: auto !important;
+    height: auto !important;
+}}
+
+.stApp {{
+    background: radial-gradient(circle at top right, #1d1f27, #0f1115) !important;
+}}
+
+[data-testid="stSidebar"] {{
+    background-color: #161920;
+    border-right: 1px solid #2d3139;
+    display: flex !important;
+}}
+
+header, footer {{ visibility: visible !important; }}
 
 .glass-card {{
     background: rgba(255, 255, 255, 0.03);
@@ -176,6 +202,7 @@ header {{ visibility: visible !important; display: block !important; }}
     padding: 24px;
     transition: all 0.3s ease;
 }}
+
 .kpi-title {{ color: #94a3b8; font-size: 14px; font-weight: 600; text-transform: uppercase; }}
 .kpi-value {{ color: #ffffff; font-size: 32px; font-weight: 700; margin-top: 8px; }}
 
@@ -188,6 +215,7 @@ header {{ visibility: visible !important; display: block !important; }}
     position: relative;
     overflow: hidden;
 }}
+
 .score-ring {{
     background: transparent;
     border: 4px solid #e63946;
@@ -197,6 +225,7 @@ header {{ visibility: visible !important; display: block !important; }}
     display: flex; align-items: center; justify-content: center;
     font-size: 32px; font-weight: 800;
 }}
+
 .download-btn {{
     background: #e63946;
     color: white !important;
@@ -286,11 +315,8 @@ else:
     with k1: st.markdown(f'<div class="glass-card"><div class="kpi-title">Toplam Katılımcı</div><div class="kpi-value">{int(df_genel["KATILIMCI SAYISI"].sum())}</div></div>', unsafe_allow_html=True)
     with k2: st.markdown(f'<div class="glass-card"><div class="kpi-title">Toplam İşe Alım</div><div class="kpi-value">{int(pd.to_numeric(df_genel["İŞE ALIM"], errors="coerce").sum())}</div></div>', unsafe_allow_html=True)
     with k3:
-        if not df_surucu.empty:
-            k_gun = pd.to_numeric(df_surucu['EĞİTİM YENİLEMEYE KAÇ GÜN KALDI?'], errors='coerce')
-            val = (k_gun < 30).sum()
-        else: val = 0
-        st.markdown(f'<div class="glass-card"><div class="kpi-title">Kritik Yenileme</div><div class="kpi-value" style="color:#e63946;">{val}</div></div>', unsafe_allow_html=True)
+        k_gun = pd.to_numeric(df_surucu['EĞİTİM YENİLEMEYE KAÇ GÜN KALDI?'], errors='coerce')
+        st.markdown(f'<div class="glass-card"><div class="kpi-title">Kritik Yenileme</div><div class="kpi-value" style="color:#e63946;">{(k_gun < 30).sum()}</div></div>', unsafe_allow_html=True)
     with k4: st.markdown(f'<div class="glass-card"><div class="kpi-title">Eğitim Sayısı</div><div class="kpi-value">{len(df_genel)}</div></div>', unsafe_allow_html=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
@@ -304,14 +330,13 @@ else:
     
     with col_r:
         st.subheader("🗓️ Yenileme Takvimi")
-        if not df_surucu.empty:
-            df_t = df_surucu.copy()
-            df_t['kg'] = pd.to_numeric(df_t['EĞİTİM YENİLEMEYE KAÇ GÜN KALDI?'], errors='coerce')
-            df_t = df_t.sort_values(by='kg', ascending=True)
-            crit = df_t[df_t['kg'] < 30]
-            if not crit.empty:
-                for _, r in crit.head(3).iterrows(): st.error(f"🚨 {r['Sürücü Adı']} - {int(r['kg'])} Gün")
-            else: st.success("✅ Tüm personel süreleri güncel.")
+        df_t = df_surucu.copy()
+        df_t['kg'] = pd.to_numeric(df_t['EĞİTİM YENİLEMEYE KAÇ GÜN KALDI?'], errors='coerce')
+        df_t = df_t.sort_values(by='kg', ascending=True)
+        crit = df_t[df_t['kg'] < 30]
+        if not crit.empty:
+            for _, r in crit.head(3).iterrows(): st.error(f"🚨 {r['Sürücü Adı']} - {int(r['kg'])} Gün")
+        else: st.success("✅ Tüm personel süreleri güncel.")
 
     st.divider()
     st.subheader("📂 Eğitim Arşivi")
