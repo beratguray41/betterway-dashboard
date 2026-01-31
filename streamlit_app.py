@@ -3,6 +3,13 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 
+# ==========================================
+# ⚙️ YAPILANDIRMA (AYARLAR)
+# Kullanıcı adı ve şifreyi buradan değiştirebilirsiniz
+# ==========================================
+LOGIN_USERNAME = "admin"
+LOGIN_PASSWORD = "betterway2026"
+
 # 1. SAYFA AYARLARI
 st.set_page_config(page_title="BetterWay Akademi | Giriş", layout="wide", page_icon="🏎️")
 
@@ -13,40 +20,41 @@ if 'logged_in' not in st.session_state:
 # --- MODERN ARAYÜZ TASARIMI (CSS) ---
 st.markdown("""
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
     
     html, body, [class*="css"] {
         font-family: 'Inter', sans-serif;
     }
 
-    /* Giriş Ekranı Arka Planı (Log in.html dosyasındaki görsel) */
+    /* Giriş Ekranı Arka Planı (Yeni Cloudinary Görseli) */
     .login-bg {
         position: fixed;
         top: 0; left: 0; width: 100%; height: 100%;
-        background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), 
-                    url('https://assets.softr-files.com/applications/0d7745a6-552f-4fe6-a9dc-29570cb0f7b7/assets/c66a13ab-7751-4ebd-9ad5-6a2f907cb0da.jpeg');
+        background: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.4)), 
+                    url('https://res.cloudinary.com/dkdgj03sl/image/upload/v1769852261/c66a13ab-7751-4ebd-9ad5-6a2f907cb0da_1_bc0j6g.jpg');
         background-size: cover;
         background-position: center;
         z-index: -1;
     }
 
-    /* Giriş Formu Konteynırı */
+    /* Giriş Formu Konteynırı - Tam Ortalamak İçin */
     .login-container {
         display: flex;
         justify-content: center;
         align-items: center;
-        padding-top: 10vh;
+        min-height: 90vh;
     }
     
     .login-card {
-        background: #ffffff;
-        padding: 50px 40px;
-        border-radius: 24px;
-        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        background: rgba(255, 255, 255, 0.95);
+        padding: 45px;
+        border-radius: 28px;
+        box-shadow: 0 30px 60px rgba(0,0,0,0.3);
         width: 100%;
-        max-width: 420px;
+        max-width: 440px;
         text-align: center;
-        border: 1px solid rgba(255,255,255,0.1);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255,255,255,0.3);
     }
 
     /* Dashboard Genel Tasarımı (Koyu Tema) */
@@ -78,7 +86,6 @@ st.markdown("""
         box-shadow: 0 0 20px rgba(230, 57, 70, 0.2);
     }
 
-    /* İndirme Butonu Stili */
     .download-btn {
         background: #e63946;
         color: white !important;
@@ -100,14 +107,25 @@ st.markdown("""
     .kpi-title { color: #94a3b8; font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
     .kpi-value { color: #ffffff; font-size: 34px; font-weight: 700; margin-top: 5px; }
 
-    /* Streamlit Widget Düzenlemeleri */
-    div.stButton > button:first-child {
-        background-color: #0075ff;
-        color: white;
-        border-radius: 10px;
-        border: none;
-        font-weight: 600;
-        height: 3.5rem;
+    /* Giriş Butonu Modernizasyon */
+    div.stButton > button {
+        background-color: #1e253d !important;
+        color: white !important;
+        border-radius: 12px !important;
+        border: none !important;
+        font-weight: 600 !important;
+        height: 3.5rem !important;
+        transition: 0.3s all !important;
+    }
+    div.stButton > button:hover {
+        background-color: #e63946 !important;
+        box-shadow: 0 10px 20px rgba(230, 57, 70, 0.2) !important;
+        transform: translateY(-2px) !important;
+    }
+
+    /* Input focus rengi */
+    .stTextInput>div>div>input:focus {
+        border-color: #e63946 !important;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -116,35 +134,37 @@ st.markdown("""
 def show_login_screen():
     st.markdown('<div class="login-bg"></div>', unsafe_allow_html=True)
     
-    # Sayfayı ortalamak için boş kolonlar kullanıyoruz
+    # Tam merkezlemek için boş kolonlar ve konteynır
+    st.markdown('<div class="login-container">', unsafe_allow_html=True)
+    
     _, center_col, _ = st.columns([1, 1.2, 1])
     
     with center_col:
-        st.markdown('<div class="login-container">', unsafe_allow_html=True)
         with st.container():
             st.markdown('<div class="login-card">', unsafe_allow_html=True)
             
-            # Logo (HTML dosyasındaki URL)
-            st.image("https://assets.softr-files.com/applications/0d7745a6-552f-4fe6-a9dc-29570cb0f7b7/assets/a0e627e0-5a38-4798-9b07-b1beca18b0a4.png", width=240)
+            # Logo (Beyaz zemin üzerinde kurumsal renkler)
+            st.image("https://assets.softr-files.com/applications/0d7745a6-552f-4fe6-a9dc-29570cb0f7b7/assets/a0e627e0-5a38-4798-9b07-b1beca18b0a4.png", width=260)
             
-            st.markdown("<h2 style='color:#1e253d; margin-top:20px; font-weight:700;'>Tekrar Hoş Geldiniz</h2>", unsafe_allow_html=True)
-            st.markdown("<p style='color:#6f727c; margin-bottom:30px;'>Devam etmek için giriş yapın</p>", unsafe_allow_html=True)
+            st.markdown("<h2 style='color:#1e253d; margin-top:25px; font-weight:700; letter-spacing:-1px;'>Hoş Geldiniz</h2>", unsafe_allow_html=True)
+            st.markdown("<p style='color:#6f727c; font-size:15px; margin-bottom:35px;'>Analiz paneline erişmek için bilgilerinizi girin</p>", unsafe_allow_html=True)
             
-            username = st.text_input("E-posta veya Kullanıcı Adı", placeholder="admin", key="user_login")
-            password = st.text_input("Şifre", type="password", placeholder="••••••••", key="pass_login")
+            username = st.text_input("Kullanıcı Adı", placeholder="admin", key="user_login", label_visibility="collapsed")
+            password = st.text_input("Şifre", type="password", placeholder="••••••••", key="pass_login", label_visibility="collapsed")
             
-            st.markdown("<div style='margin-top: 20px;'></div>", unsafe_allow_html=True)
+            st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
             
-            if st.button("Devam Et", use_container_width=True):
-                # Giriş Kontrolü
-                if username == "admin" and password == "betterway2026":
+            if st.button("Sisteme Giriş Yap", use_container_width=True):
+                if username == LOGIN_USERNAME and password == LOGIN_PASSWORD:
                     st.session_state['logged_in'] = True
                     st.rerun()
                 else:
-                    st.error("Girdiğiniz bilgiler sistem kayıtlarıyla eşleşmiyor.")
+                    st.error("Giriş bilgileri hatalı!")
             
+            st.markdown("<p style='color:#ccc; font-size:12px; margin-top:20px;'>BetterWay Akademi Güvenli Erişim</p>", unsafe_allow_html=True)
             st.markdown('</div>', unsafe_allow_html=True)
-        st.markdown('</div>', unsafe_allow_html=True)
+    
+    st.markdown('</div>', unsafe_allow_html=True)
 
 # --- ANA UYGULAMA MANTIĞI ---
 if not st.session_state['logged_in']:
@@ -185,11 +205,10 @@ else:
         if st.button("Güvenli Çıkış"):
             st.session_state['logged_in'] = False
             st.rerun()
-        st.caption("BetterWay Intelligence v7.5")
+        st.caption("BetterWay Intelligence v8.0")
 
     # --- SAYFA İÇERİKLERİ ---
     if menu == "🔍 Sürücü Sorgula" and 'secilen_surucu' in locals() and secilen_surucu != "Seçiniz...":
-        # Sürücü Sorgulama Görünümü (Profil Kartı)
         row = df_surucu[df_surucu['Sürücü Adı'] == secilen_surucu].iloc[0]
         st.markdown(f"""
             <div class="hero-profile">
@@ -217,7 +236,7 @@ else:
         """, unsafe_allow_html=True)
 
     else:
-        # Genel Bakış Görünümü (Dashboard)
+        # Dashboard
         k1, k2, k3, k4 = st.columns(4)
         with k1:
             st.markdown(f'<div class="glass-card"><div class="kpi-title">Toplam Katılımcı</div><div class="kpi-value">{int(df_genel["KATILIMCI SAYISI"].sum())}</div></div>', unsafe_allow_html=True)
@@ -231,7 +250,6 @@ else:
 
         st.markdown("<div style='margin-bottom: 30px;'></div>", unsafe_allow_html=True)
         
-        # Grafik ve Yenileme Listesi
         l, r = st.columns([1.2, 1])
         with l:
             st.subheader("⚠️ Uygunsuzluk Özeti")
@@ -250,7 +268,6 @@ else:
                     st.error(f"🚨 {row['Sürücü Adı']} - {int(row['kg'])} Gün Kaldı")
             else: st.success("✅ Tüm personel süreleri güncel.")
 
-        # Eğitim Arşivi
         st.divider()
         st.subheader("📂 Gerçekleştirilen Eğitimler Arşivi")
         df_genel['DT'] = pd.to_datetime(df_genel['EĞİTİM TARİHİ'], dayfirst=True, errors='coerce')
