@@ -19,13 +19,16 @@ VALID_USERS = {
 LOGIN_BG_URL = "https://res.cloudinary.com/dkdgj03sl/image/upload/v1769852261/c66a13ab-7751-4ebd-9ad5-6a2f907cb0da_1_bc0j6g.jpg"
 LOGO_URL = "https://assets.softr-files.com/applications/0d7745a6-552f-4fe6-a9dc-29570cb0f7b7/assets/a0e627e0-5a38-4798-9b07-b1beca18b0a4.png"
 
+# =========================================================
+# LOGIN CSS (LOGO ÜSTÜ BOŞ DİKDÖRTGEN YOK + EYE İKONU DIŞARIDA)
+# =========================================================
 def inject_login_css():
     st.markdown(
         f"""
         <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
-        /* ✅ Arka Plan ve Kaydırma Engelleme */
+        /* ✅ Background + scroll kapalı */
         .stApp {{
             background: linear-gradient(rgba(0,0,0,0.10), rgba(0,0,0,0.35)), url('{LOGIN_BG_URL}');
             background-size: cover;
@@ -34,15 +37,18 @@ def inject_login_css():
             overflow: hidden !important;
         }}
 
-        /* Streamlit Varsayılan Elemanlarını Gizle */
-        header, footer, [data-testid="stSidebar"] {{ visibility: hidden !important; display: none !important; }}
+        /* Header/footer/sidebar gizle */
+        header, footer, [data-testid="stSidebar"] {{
+            visibility: hidden !important;
+            display: none !important;
+        }}
 
-        /* ✅ Merkezi Beyaz Kart */
+        /* ✅ Login kartı (selector için login-box gerekli ama kendisini gizleyeceğiz) */
         [data-testid="stVerticalBlock"] > div:has(.login-box) {{
             background: rgba(255, 255, 255, 0.98);
             padding: 34px 44px !important;
             border-radius: 30px !important;
-            box-shadow: 0 40px 100px rgba(0,0,0,0.3) !important;
+            box-shadow: 0 40px 100px rgba(0,0,0,0.30) !important;
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255,255,255,0.55);
             max-width: 520px;
@@ -50,7 +56,15 @@ def inject_login_css():
             margin-top: 10vh;
         }}
 
-        /* ✅ Label ÜSTTE (kolon yok, daralma yok) */
+        /* ✅ Logo üstündeki "boş dikdörtgen" / placeholder görünmesin */
+        .login-box {{
+            display: none !important;
+            height: 0 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }}
+
+        /* ✅ Label */
         .bw-label {{
             font-family: Inter, sans-serif;
             color: #0f172a;
@@ -60,7 +74,7 @@ def inject_login_css():
             letter-spacing: .2px;
         }}
 
-        /* ✅ Input full width + 👁️ ikon için sağ boşluk */
+        /* ✅ Input full width */
         div[data-testid="stTextInput"] {{
             width: 100% !important;
         }}
@@ -73,22 +87,33 @@ def inject_login_css():
             height: 46px !important;
             color: #0f172a !important;
             padding-left: 14px !important;
-            padding-right: 56px !important; /* 👁️ ikon alanı */
+            padding-right: 14px !important; /* ✅ artık göz ikonu input içinde değil */
             font-size: 14px !important;
         }}
 
-        /* ✅ Şifre göster butonu rahat */
+        /* ✅ Streamlit'in şifre "göz" butonunu TAMAMEN gizle (alan daraltmasın) */
         div[data-testid="stTextInput"] button {{
-            min-width: 46px !important;
-            width: 46px !important;
-            height: 46px !important;
-            border-radius: 12px !important;
+            display: none !important;
         }}
 
-        /* ✅ Turuncu Buton */
+        /* ✅ Şifreyi göster toggle satırı sağa yasla */
+        .pw-toggle-wrap {{
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 6px;
+            margin-bottom: 2px;
+        }}
+        .pw-toggle-wrap label {{
+            font-family: Inter, sans-serif !important;
+            font-size: 12px !important;
+            font-weight: 700 !important;
+            color: #334155 !important;
+        }}
+
+        /* ✅ Turuncu giriş butonu */
         div.stButton > button {{
             background: #ff7b00 !important;
-            color: white !important;
+            color: #fff !important;
             border-radius: 14px !important;
             border: none !important;
             font-weight: 900 !important;
@@ -98,7 +123,6 @@ def inject_login_css():
             transition: 0.25s all !important;
             box-shadow: 0 6px 18px rgba(255, 123, 0, 0.25) !important;
         }}
-
         div.stButton > button:hover {{
             background: #e66f00 !important;
             transform: translateY(-2px);
@@ -117,23 +141,26 @@ def inject_login_css():
         unsafe_allow_html=True
     )
 
+# =========================================================
+# LOGIN SCREEN
+# =========================================================
 def login_screen():
     inject_login_css()
 
     if "auth" not in st.session_state:
         st.session_state.auth = False
+    if "show_pw" not in st.session_state:
+        st.session_state.show_pw = False
 
-    # Layout Sütunları
     _, mid, _ = st.columns([1, 1.6, 1])
 
     with mid:
+        # selector için var ama görünmez (CSS ile gizli)
         st.markdown('<div class="login-box"></div>', unsafe_allow_html=True)
 
-        # Logo
         st.image(LOGO_URL, width=220)
         st.write("")
 
-        # ✅ Label üstte, input full width
         st.markdown('<div class="bw-label">Kullanıcı Adı</div>', unsafe_allow_html=True)
         username = st.text_input(
             "username",
@@ -143,13 +170,21 @@ def login_screen():
         )
 
         st.markdown('<div class="bw-label">Şifre</div>', unsafe_allow_html=True)
+
+        # ✅ Göz ikonu input içinde değil: kendi toggle'ımız var.
+        pw_type = "default" if st.session_state.show_pw else "password"
         password = st.text_input(
             "password",
-            type="password",
+            type=pw_type,
             placeholder="Şifreniz",
             key="p_field",
             label_visibility="collapsed"
         )
+
+        # Sağda "Şifreyi göster" toggle (input'u ASLA daraltmaz)
+        st.markdown('<div class="pw-toggle-wrap">', unsafe_allow_html=True)
+        st.checkbox("Şifreyi göster", key="show_pw", label_visibility="visible")
+        st.markdown('</div>', unsafe_allow_html=True)
 
         if st.button("SİSTEME GİRİŞ YAP"):
             u = username.strip().lower()
@@ -173,9 +208,7 @@ if not st.session_state.auth:
     login_screen()
     st.stop()
 
-# =========================================================
-# DASHBOARD CSS (GİRİŞTEN SONRA)
-# =========================================================
+# --- DASHBOARD CSS (SADECE GİRİŞTEN SONRA) ---
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
@@ -228,9 +261,7 @@ header { visibility: visible !important; display: block !important; }
 </style>
 """, unsafe_allow_html=True)
 
-# =========================================================
-# VERİ ÇEKME
-# =========================================================
+# --- VERİ ÇEKME ---
 SHEET_ID = "1Q-VMr9_wz7Op-tutiYePUhZi3OKmyITMKJmtqQuN1YU"
 GENEL_GID = "0"
 SURUCU_GID = "395204791"
@@ -250,9 +281,7 @@ df_genel = load_data(GENEL_GID)
 df_surucu = load_data(SURUCU_GID)
 df_hata = load_data(HATA_OZETI_GID)
 
-# =========================================================
-# SIDEBAR
-# =========================================================
+# --- SIDEBAR ---
 with st.sidebar:
     st.image(LOGO_URL, width=180)
     st.markdown(f"""
@@ -276,9 +305,7 @@ with st.sidebar:
     st.markdown("---")
     st.caption("BetterWay Intelligence v8.7")
 
-# =========================================================
-# MAIN PANEL
-# =========================================================
+# --- MAIN PANEL CONTENT ---
 if menu == "🔍 Sürücü Sorgula" and 'secilen_surucu' in locals() and secilen_surucu != "Seçiniz..." and not df_surucu.empty:
     row = df_surucu[df_surucu['Sürücü Adı'] == secilen_surucu].iloc[0]
     st.markdown(f"""
@@ -306,41 +333,24 @@ if menu == "🔍 Sürücü Sorgula" and 'secilen_surucu' in locals() and secilen
     """, unsafe_allow_html=True)
 else:
     k1, k2, k3, k4 = st.columns(4)
-
     with k1:
-        if not df_genel.empty and "KATILIMCI SAYISI" in df_genel.columns:
-            st.markdown(
-                f'<div class="glass-card"><div class="kpi-title">Toplam Katılımcı</div><div class="kpi-value">{int(pd.to_numeric(df_genel["KATILIMCI SAYISI"], errors="coerce").fillna(0).sum())}</div></div>',
-                unsafe_allow_html=True
-            )
-        else:
-            st.markdown(f'<div class="glass-card"><div class="kpi-title">Toplam Katılımcı</div><div class="kpi-value">0</div></div>', unsafe_allow_html=True)
+        total_katilimci = int(pd.to_numeric(df_genel.get("KATILIMCI SAYISI", pd.Series([0])), errors="coerce").fillna(0).sum()) if not df_genel.empty else 0
+        st.markdown(f'<div class="glass-card"><div class="kpi-title">Toplam Katılımcı</div><div class="kpi-value">{total_katilimci}</div></div>', unsafe_allow_html=True)
 
     with k2:
-        if not df_genel.empty and "İŞE ALIM" in df_genel.columns:
-            st.markdown(
-                f'<div class="glass-card"><div class="kpi-title">Toplam İşe Alım</div><div class="kpi-value">{int(pd.to_numeric(df_genel["İŞE ALIM"], errors="coerce").fillna(0).sum())}</div></div>',
-                unsafe_allow_html=True
-            )
-        else:
-            st.markdown(f'<div class="glass-card"><div class="kpi-title">Toplam İşe Alım</div><div class="kpi-value">0</div></div>', unsafe_allow_html=True)
+        total_ise_alim = int(pd.to_numeric(df_genel.get("İŞE ALIM", pd.Series([0])), errors="coerce").fillna(0).sum()) if not df_genel.empty else 0
+        st.markdown(f'<div class="glass-card"><div class="kpi-title">Toplam İşe Alım</div><div class="kpi-value">{total_ise_alim}</div></div>', unsafe_allow_html=True)
 
     with k3:
         if not df_surucu.empty and 'EĞİTİM YENİLEMEYE KAÇ GÜN KALDI?' in df_surucu.columns:
             k_gun = pd.to_numeric(df_surucu['EĞİTİM YENİLEMEYE KAÇ GÜN KALDI?'], errors='coerce')
-            val = (k_gun < 30).fillna(False).sum()
+            val = int((k_gun < 30).fillna(False).sum())
         else:
             val = 0
-        st.markdown(
-            f'<div class="glass-card"><div class="kpi-title">Kritik Yenileme</div><div class="kpi-value" style="color:#e63946;">{int(val)}</div></div>',
-            unsafe_allow_html=True
-        )
+        st.markdown(f'<div class="glass-card"><div class="kpi-title">Kritik Yenileme</div><div class="kpi-value" style="color:#e63946;">{val}</div></div>', unsafe_allow_html=True)
 
     with k4:
-        st.markdown(
-            f'<div class="glass-card"><div class="kpi-title">Eğitim Sayısı</div><div class="kpi-value">{len(df_genel) if not df_genel.empty else 0}</div></div>',
-            unsafe_allow_html=True
-        )
+        st.markdown(f'<div class="glass-card"><div class="kpi-title">Eğitim Sayısı</div><div class="kpi-value">{len(df_genel) if not df_genel.empty else 0}</div></div>', unsafe_allow_html=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
 
@@ -349,13 +359,7 @@ else:
     with col_l:
         st.subheader("⚠️ Uygunsuzluk Özeti")
         if not df_hata.empty and df_hata.shape[1] >= 2:
-            fig = px.bar(
-                df_hata.tail(10),
-                x=df_hata.columns[1],
-                y=df_hata.columns[0],
-                orientation='h',
-                template="plotly_dark"
-            )
+            fig = px.bar(df_hata.tail(10), x=df_hata.columns[1], y=df_hata.columns[0], orientation='h', template="plotly_dark")
             fig.update_layout(paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', height=400)
             st.plotly_chart(fig, use_container_width=True)
         else:
@@ -389,13 +393,12 @@ else:
             cols[1].write(r.get('EĞİTİM YERİ', '-'))
             cols[2].write(f"**{r.get('EĞİTİM TÜRÜ','-')}**")
             cols[3].write(f"{r.get('KATILIMCI SAYISI','-')} Kişi")
-
             link = str(r.get('RAPOR VE SERTİFİKALAR', '#'))
             if link and link != "nan" and link != "#":
                 cols[4].markdown(f'<a href="{link}" target="_blank" class="download-btn">İndir 📥</a>', unsafe_allow_html=True)
-
             st.markdown("<div style='border-bottom: 1px solid #1e222d; margin: 8px 0;'></div>", unsafe_allow_html=True)
     else:
         st.info("Eğitim arşivi verisi bulunamadı.")
 
 st.markdown("<br><br><center style='color:#475569; font-size:12px;'>BetterWay Akademi Management Dashboard © 2026</center><br>", unsafe_allow_html=True)
+``
