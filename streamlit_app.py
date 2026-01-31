@@ -42,6 +42,8 @@ st.markdown("""
         border-left: 5px solid #e63946;
         margin-bottom: 8px;
     }
+    /* Tablo genel yazı rengi düzeltme */
+    .stDataFrame, .stTable { color: #ffffff !important; }
     </style>
     """, unsafe_allow_html=True)
 
@@ -73,7 +75,7 @@ with st.sidebar:
         ismler = sorted(df_surucu['Sürücü Adı'].astype(str).unique().tolist())
         selected_driver = st.selectbox("🔍 Sürücü Sorgula", options=["GENEL DASHBOARD"] + ismler)
     st.divider()
-    st.caption("BetterWay v4.5 | 2026")
+    st.caption("BetterWay v4.6 | 2026")
 
 # --- ANA PANEL ---
 st.title("🛡️ Akademi Operasyon Paneli")
@@ -84,18 +86,18 @@ if selected_driver == "GENEL DASHBOARD":
     m1, m2, m3, m4 = st.columns(4)
     with m1:
         val = int(df_genel['KATILIMCI SAYISI'].sum()) if 'KATILIMCI SAYISI' in df_genel.columns else 0
-        st.markdown(f'<div class="metric-card"><span>Toplam Katılımcı</span><br><b style="font-size:32px;">{val}</b></div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="metric-card"><span>Toplam Katılımcı</span><br><b style="font-size:32px; color:white;">{val}</b></div>', unsafe_allow_html=True)
     
     with m2:
-        # İŞE ALIM HESAPLAMA (Sayıları doğrudan toplar)
+        # İŞE ALIM (Beyaz Renk)
         if 'İŞE ALIM' in df_genel.columns:
-            # Sütunu sayıya çevir ve topla
             ise_alim_toplam = pd.to_numeric(df_genel['İŞE ALIM'], errors='coerce').sum()
         else:
             ise_alim_toplam = 0
-        st.markdown(f'<div class="metric-card"><span>Toplam İşe Alım</span><br><b style="font-size:32px; color:#e63946;">{int(ise_alim_toplam)}</b></div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="metric-card"><span>Toplam İşe Alım</span><br><b style="font-size:32px; color:white;">{int(ise_alim_toplam)}</b></div>', unsafe_allow_html=True)
     
     with m3:
+        # EĞİTİMİ YAKLAŞAN (Tek Kırmızı Olan)
         if 'EĞİTİM YENİLEMEYE KAÇ GÜN KALDI?' in df_surucu.columns:
             days = pd.to_numeric(df_surucu['EĞİTİM YENİLEMEYE KAÇ GÜN KALDI?'], errors='coerce')
             k_sayi = (days < 30).sum()
@@ -103,7 +105,7 @@ if selected_driver == "GENEL DASHBOARD":
         st.markdown(f'<div class="metric-card"><span>Eğitimi Yaklaşan</span><br><b style="font-size:32px; color:#e63946;">{k_sayi}</b></div>', unsafe_allow_html=True)
     
     with m4:
-        st.markdown(f'<div class="metric-card"><span>Toplam Eğitim</span><br><b style="font-size:32px;">{len(df_genel)}</b></div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="metric-card"><span>Toplam Eğitim</span><br><b style="font-size:32px; color:white;">{len(df_genel)}</b></div>', unsafe_allow_html=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
 
@@ -126,10 +128,12 @@ if selected_driver == "GENEL DASHBOARD":
             df_kritik = df_surucu[df_surucu['kalan_gun_num'] < 30].sort_values(by='kalan_gun_num', ascending=True)
             
             if not df_kritik.empty:
+                # Önizleme (Kritik kutular)
                 for _, row in df_kritik.head(3).iterrows():
                     st.markdown(f"""<div class="critical-box"><b>{row['Sürücü Adı']}</b> | {int(row['kalan_gun_num'])} Gün Kaldı</div>""", unsafe_allow_html=True)
                 
-                with st.expander("🔻 TÜM LİSTEYİ GÖR"):
+                # AÇILIR TABLO (Sıralı tam liste)
+                with st.expander("🔻 TÜM LİSTEYİ GÖR (En Acil olandan başlar)"):
                     st.table(df_kritik[['Sürücü Adı', 'EĞİTİM YERİ', 'EĞİTİM YENİLEMEYE KAÇ GÜN KALDI?']].reset_index(drop=True))
             else:
                 st.success("Kritik durumda sürücü bulunmuyor.")
@@ -150,7 +154,7 @@ if selected_driver == "GENEL DASHBOARD":
             r[2].write(f"**{row.get('EĞİTİM TÜRÜ','-')}**")
             r[3].write(str(row.get('KATILIMCI SAYISI','0')))
             
-            # İŞE ALIM SAYISINI OLDUĞU GİBİ GÖSTER
+            # İŞE ALIM (Sayısal gösterim)
             ise_val = row.get('İŞE ALIM', 0)
             r[4].write(str(int(ise_val) if pd.notnull(ise_val) else 0))
             
