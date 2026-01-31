@@ -73,7 +73,7 @@ with st.sidebar:
         ismler = sorted(df_surucu['Sürücü Adı'].astype(str).unique().tolist())
         selected_driver = st.selectbox("🔍 Sürücü Sorgula", options=["GENEL DASHBOARD"] + ismler)
     st.divider()
-    st.caption("BetterWay v4.4 | 2026")
+    st.caption("BetterWay v4.5 | 2026")
 
 # --- ANA PANEL ---
 st.title("🛡️ Akademi Operasyon Paneli")
@@ -87,12 +87,13 @@ if selected_driver == "GENEL DASHBOARD":
         st.markdown(f'<div class="metric-card"><span>Toplam Katılımcı</span><br><b style="font-size:32px;">{val}</b></div>', unsafe_allow_html=True)
     
     with m2:
-        # İŞE ALIM HESAPLAMA (Sayısal Sonuç Verir)
-        ise_alim_sayisi = 0
+        # İŞE ALIM HESAPLAMA (Sayıları doğrudan toplar)
         if 'İŞE ALIM' in df_genel.columns:
-            # Sütundaki "EVET" yazan her satırı 1 sayar ve toplar
-            ise_alim_sayisi = df_genel['İŞE ALIM'].astype(str).str.upper().str.strip().eq("EVET").sum()
-        st.markdown(f'<div class="metric-card"><span>Toplam İşe Alım</span><br><b style="font-size:32px; color:#e63946;">{ise_alim_sayisi}</b></div>', unsafe_allow_html=True)
+            # Sütunu sayıya çevir ve topla
+            ise_alim_toplam = pd.to_numeric(df_genel['İŞE ALIM'], errors='coerce').sum()
+        else:
+            ise_alim_toplam = 0
+        st.markdown(f'<div class="metric-card"><span>Toplam İşe Alım</span><br><b style="font-size:32px; color:#e63946;">{int(ise_alim_toplam)}</b></div>', unsafe_allow_html=True)
     
     with m3:
         if 'EĞİTİM YENİLEMEYE KAÇ GÜN KALDI?' in df_surucu.columns:
@@ -128,7 +129,7 @@ if selected_driver == "GENEL DASHBOARD":
                 for _, row in df_kritik.head(3).iterrows():
                     st.markdown(f"""<div class="critical-box"><b>{row['Sürücü Adı']}</b> | {int(row['kalan_gun_num'])} Gün Kaldı</div>""", unsafe_allow_html=True)
                 
-                with st.expander("🔻 TÜM LİSTEYİ GÖR (Aciliyet Sırasına Göre)"):
+                with st.expander("🔻 TÜM LİSTEYİ GÖR"):
                     st.table(df_kritik[['Sürücü Adı', 'EĞİTİM YERİ', 'EĞİTİM YENİLEMEYE KAÇ GÜN KALDI?']].reset_index(drop=True))
             else:
                 st.success("Kritik durumda sürücü bulunmuyor.")
@@ -149,10 +150,9 @@ if selected_driver == "GENEL DASHBOARD":
             r[2].write(f"**{row.get('EĞİTİM TÜRÜ','-')}**")
             r[3].write(str(row.get('KATILIMCI SAYISI','0')))
             
-            # Arşiv tablosunda her eğitim için İşe Alım Sayısını gösterelim
-            ise_alim_val = str(row.get('İŞE ALIM','')).upper().strip()
-            # Eğer o satırda "EVET" yazıyorsa 1 yazsın, "HAYIR" yazıyorsa 0 yazsın
-            r[4].write("1" if ise_alim_val == "EVET" else "0")
+            # İŞE ALIM SAYISINI OLDUĞU GİBİ GÖSTER
+            ise_val = row.get('İŞE ALIM', 0)
+            r[4].write(str(int(ise_val) if pd.notnull(ise_val) else 0))
             
             link = str(row.get('RAPOR VE SERTİFİKALAR','#'))
             if link != "nan" and link != "#": r[5].link_button("📥", link)
