@@ -26,7 +26,7 @@ st.markdown("""
         font-family: 'Inter', sans-serif;
     }
 
-    /* Giriş Ekranı Arka Planı (Yeni Cloudinary Görseli) */
+    /* Giriş Ekranı Arka Planı */
     .login-bg {
         position: fixed;
         top: 0; left: 0; width: 100%; height: 100%;
@@ -37,29 +37,48 @@ st.markdown("""
         z-index: -1;
     }
 
-    /* Giriş Formu Konteynırı - Tam Ortalamak İçin */
+    /* Giriş Formu Konteynırı - Kaydırmayı engellemek için tam ekran */
     .login-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
         display: flex;
         justify-content: center;
         align-items: center;
-        min-height: 90vh;
+        z-index: 1000;
+        background: transparent;
+        overflow: hidden;
     }
     
     .login-card {
-        background: rgba(255, 255, 255, 0.95);
-        padding: 45px;
+        background: rgba(255, 255, 255, 0.98);
+        padding: 35px;
         border-radius: 28px;
-        box-shadow: 0 30px 60px rgba(0,0,0,0.3);
-        width: 100%;
-        max-width: 440px;
+        box-shadow: 0 30px 60px rgba(0,0,0,0.4);
+        width: 90%;
+        max-width: 420px;
         text-align: center;
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255,255,255,0.3);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(255,255,255,0.4);
     }
 
     /* Dashboard Genel Tasarımı (Koyu Tema) */
     .stApp {
         background: radial-gradient(circle at top right, #1d1f27, #0f1115);
+    }
+
+    /* Login ekranındayken Streamlit'in üst boşluğunu ve scroll barını gizle */
+    body:has(.login-container) {
+        overflow: hidden;
+    }
+    body:has(.login-container) header {
+        display: none !important;
+    }
+    body:has(.login-container) [data-testid="stVerticalBlock"] {
+        padding: 0 !important;
+        gap: 0 !important;
     }
 
     [data-testid="stSidebar"] {
@@ -116,16 +135,12 @@ st.markdown("""
         font-weight: 600 !important;
         height: 3.5rem !important;
         transition: 0.3s all !important;
+        margin-top: 10px;
     }
     div.stButton > button:hover {
         background-color: #e63946 !important;
         box-shadow: 0 10px 20px rgba(230, 57, 70, 0.2) !important;
         transform: translateY(-2px) !important;
-    }
-
-    /* Input focus rengi */
-    .stTextInput>div>div>input:focus {
-        border-color: #e63946 !important;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -134,35 +149,33 @@ st.markdown("""
 def show_login_screen():
     st.markdown('<div class="login-bg"></div>', unsafe_allow_html=True)
     
-    # Tam merkezlemek için boş kolonlar ve konteynır
+    # Tüm ekranı kaplayan ve scrollu engelleyen konteynır
     st.markdown('<div class="login-container">', unsafe_allow_html=True)
     
-    _, center_col, _ = st.columns([1, 1.2, 1])
+    # İçerik sütunu
+    _, center_col, _ = st.columns([1, 1.5, 1])
     
     with center_col:
-        with st.container():
-            st.markdown('<div class="login-card">', unsafe_allow_html=True)
-            
-            # Logo (Beyaz zemin üzerinde kurumsal renkler)
-            st.image("https://assets.softr-files.com/applications/0d7745a6-552f-4fe6-a9dc-29570cb0f7b7/assets/a0e627e0-5a38-4798-9b07-b1beca18b0a4.png", width=260)
-            
-            st.markdown("<h2 style='color:#1e253d; margin-top:25px; font-weight:700; letter-spacing:-1px;'>Hoş Geldiniz</h2>", unsafe_allow_html=True)
-            st.markdown("<p style='color:#6f727c; font-size:15px; margin-bottom:35px;'>Analiz paneline erişmek için bilgilerinizi girin</p>", unsafe_allow_html=True)
-            
-            username = st.text_input("Kullanıcı Adı", placeholder="admin", key="user_login", label_visibility="collapsed")
-            password = st.text_input("Şifre", type="password", placeholder="••••••••", key="pass_login", label_visibility="collapsed")
-            
-            st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
-            
-            if st.button("Sisteme Giriş Yap", use_container_width=True):
-                if username == LOGIN_USERNAME and password == LOGIN_PASSWORD:
-                    st.session_state['logged_in'] = True
-                    st.rerun()
-                else:
-                    st.error("Giriş bilgileri hatalı!")
-            
-            st.markdown("<p style='color:#ccc; font-size:12px; margin-top:20px;'>BetterWay Akademi Güvenli Erişim</p>", unsafe_allow_html=True)
-            st.markdown('</div>', unsafe_allow_html=True)
+        st.markdown('<div class="login-card">', unsafe_allow_html=True)
+        
+        # Logo
+        st.image("https://assets.softr-files.com/applications/0d7745a6-552f-4fe6-a9dc-29570cb0f7b7/assets/a0e627e0-5a38-4798-9b07-b1beca18b0a4.png", width=220)
+        
+        st.markdown("<h2 style='color:#1e253d; margin-top:20px; font-weight:700; letter-spacing:-1px; margin-bottom:5px;'>Hoş Geldiniz</h2>", unsafe_allow_html=True)
+        st.markdown("<p style='color:#6f727c; font-size:14px; margin-bottom:25px;'>Devam etmek için bilgilerinizi girin</p>", unsafe_allow_html=True)
+        
+        username = st.text_input("Kullanıcı Adı", placeholder="Kullanıcı adınızı girin", key="user_login", label_visibility="collapsed")
+        password = st.text_input("Şifre", type="password", placeholder="Şifrenizi girin", key="pass_login", label_visibility="collapsed")
+        
+        if st.button("Sisteme Giriş Yap", use_container_width=True):
+            if username == LOGIN_USERNAME and password == LOGIN_PASSWORD:
+                st.session_state['logged_in'] = True
+                st.rerun()
+            else:
+                st.error("Giriş bilgileri hatalı!")
+        
+        st.markdown("<p style='color:#bbb; font-size:11px; margin-top:20px;'>BetterWay Akademi Güvenli Erişim © 2026</p>", unsafe_allow_html=True)
+        st.markdown('</div>', unsafe_allow_html=True)
     
     st.markdown('</div>', unsafe_allow_html=True)
 
@@ -205,7 +218,7 @@ else:
         if st.button("Güvenli Çıkış"):
             st.session_state['logged_in'] = False
             st.rerun()
-        st.caption("BetterWay Intelligence v8.0")
+        st.caption("BetterWay Intelligence v8.1")
 
     # --- SAYFA İÇERİKLERİ ---
     if menu == "🔍 Sürücü Sorgula" and 'secilen_surucu' in locals() and secilen_surucu != "Seçiniz...":
