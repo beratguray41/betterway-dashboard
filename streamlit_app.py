@@ -92,17 +92,29 @@ st.markdown("""
         font-weight: 500;
     }
 
-    /* Link Butonu */
+    /* İndirme Butonu - REVİZE EDİLDİ */
     .download-btn {
-        background: #2d3139;
-        color: white;
-        padding: 6px 12px;
-        border-radius: 8px;
+        background: #e63946;
+        color: white !important;
+        padding: 10px 20px;
+        border-radius: 10px;
         text-decoration: none;
-        font-size: 12px;
-        transition: 0.2s;
+        font-size: 14px;
+        font-weight: 700;
+        transition: 0.3s all ease;
+        box-shadow: 0 4px 12px rgba(230, 57, 70, 0.3);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        border: none;
     }
-    .download-btn:hover { background: #e63946; }
+    .download-btn:hover {
+        background: #ff4d4d;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(230, 57, 70, 0.5);
+        color: white !important;
+    }
     
     /* Divider Custom */
     hr { border: 0; border-top: 1px solid #2d3139; margin: 30px 0; }
@@ -263,15 +275,15 @@ else:
     st.markdown("<h3 style='font-size:20px; margin-bottom:25px;'>📂 Gerçekleştirilen Eğitimler Arşivi</h3>", unsafe_allow_html=True)
     
     # Header
-    h_cols = st.columns([1, 1, 2, 1, 1, 0.5])
-    labels = ["TARİH", "LOKASYON", "EĞİTİM TÜRÜ", "KATILIMCI", "İŞE ALIM", ""]
+    h_cols = st.columns([1, 1, 2, 1, 1, 0.8])
+    labels = ["TARİH", "LOKASYON", "EĞİTİM TÜRÜ", "KATILIMCI", "İŞE ALIM", "DOKÜMAN"]
     for i, l in enumerate(labels): h_cols[i].markdown(f"<small style='color:#64748b; font-weight:700;'>{l}</small>", unsafe_allow_html=True)
     
     if not df_genel.empty:
         df_genel['DT'] = pd.to_datetime(df_genel['EĞİTİM TARİHİ'], dayfirst=True, errors='coerce')
         for _, row in df_genel.sort_values(by='DT', ascending=False).iterrows():
             with st.container():
-                r = st.columns([1, 1, 2, 1, 1, 0.5])
+                r = st.columns([1, 1, 2, 1, 1, 0.8])
                 r[0].write(f"<span style='font-size:13px;'>{row.get('EĞİTİM TARİHİ','-')}</span>", unsafe_allow_html=True)
                 r[1].write(f"<span style='font-size:13px;'>{row.get('EĞİTİM YERİ','-')}</span>", unsafe_allow_html=True)
                 r[2].write(f"<b style='font-size:14px; color:#e2e8f0;'>{row.get('EĞİTİM TÜRÜ','-')}</b>", unsafe_allow_html=True)
@@ -279,8 +291,10 @@ else:
                 r[4].write(f"<span style='font-size:13px;'>{int(row.get('İŞE ALIM', 0)) if pd.notnull(row.get('İŞE ALIM')) else 0} Aday</span>", unsafe_allow_html=True)
                 
                 link = str(row.get('RAPOR VE SERTİFİKALAR','#'))
-                if link != "nan" and link != "#": r[5].markdown(f'<a href="{link}" class="download-btn">📥</a>', unsafe_allow_html=True)
-                else: r[5].write("")
+                if link != "nan" and link != "#": 
+                    r[5].markdown(f'<a href="{link}" target="_blank" class="download-btn">İndir 📥</a>', unsafe_allow_html=True)
+                else: 
+                    r[5].write("")
                 st.markdown("<div style='border-bottom: 1px solid #1e222d; margin: 8px 0;'></div>", unsafe_allow_html=True)
 
 st.markdown("<br><br><center style='color:#475569; font-size:12px;'>BetterWay Akademi Management Dashboard © 2026</center><br>", unsafe_allow_html=True)
