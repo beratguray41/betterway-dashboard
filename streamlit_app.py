@@ -20,20 +20,23 @@ st.markdown("""
         background: linear-gradient(135deg, #1c2128 0%, #0b0e14 100%);
         padding: 30px;
         border-radius: 20px;
-        border: 1px solid #e63946;
+        border: 2px solid #e63946;
+        box-shadow: 0 10px 40px rgba(230, 57, 70, 0.3);
         margin-top: 20px;
+        margin-bottom: 30px;
     }
     .score-circle {
         background: #e63946;
         color: white !important;
-        width: 80px;
-        height: 80px;
+        width: 90px;
+        height: 90px;
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 24px;
+        font-size: 28px;
         font-weight: bold;
+        box-shadow: 0 0 20px rgba(230, 57, 70, 0.5);
     }
     .critical-box {
         background: rgba(230, 57, 70, 0.1);
@@ -65,51 +68,97 @@ df_genel = load_data(GENEL_GID)
 df_surucu = load_data(SURUCU_GID)
 df_hata = load_data(HATA_OZETI_GID)
 
-# --- SIDEBAR ---
+# --- SOL PANEL (SIDEBAR) ---
 with st.sidebar:
     st.image("https://www.betterway.com.tr/wp-content/uploads/2021/05/logo.png", width=200)
     st.markdown("<br>", unsafe_allow_html=True)
+    st.subheader("🔍 Sürücü Sorgulama")
+    
     if not df_surucu.empty:
-        ismler = sorted(df_surucu['Sürücü Adı'].astype(str).unique().tolist())
-        selected_driver = st.selectbox("🔍 Sürücü Sorgula", options=["GENEL DASHBOARD"] + ismler)
+        # Dinamik isim listesi
+        surucu_listesi = sorted(df_surucu['Sürücü Adı'].dropna().astype(str).unique().tolist())
+        # Seçim kutusu
+        secilen_isim = st.selectbox(
+            "İsim yazın veya listeden seçin",
+            options=["ANASAYFAYA DÖN"] + surucu_listesi,
+            index=0
+        )
+    else:
+        secilen_isim = "ANASAYFAYA DÖN"
+        
     st.divider()
-    st.caption("BetterWay v4.7 | 2026")
+    st.caption("BetterWay Akademi v5.0 | 2026")
 
 # --- ANA PANEL ---
 st.title("🛡️ Akademi Operasyon Paneli")
 
-if selected_driver == "GENEL DASHBOARD":
+# --- SENARYO A: SÜRÜCÜ SEÇİLDİĞİNDE (KARNE GÖRÜNÜMÜ) ---
+if secilen_isim != "ANASAYFAYA DÖN":
+    st.subheader(f"👤 Sürücü Detaylı Performans Karnesi")
     
+    # Seçilen sürücünün verisini filtrele
+    surucu_verisi = df_surucu[df_surucu['Sürücü Adı'] == secilen_isim].iloc[0]
+    
+    # GÖRSEL KARNE TASARIMI
+    st.markdown(f"""
+        <div class="driver-profile">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h1 style="margin:0; font-size:36px; color:white !important;">{surucu_verisi['Sürücü Adı']}</h1>
+                    <p style="font-size:18px; color:#adbac7 !important;">📍 {surucu_verisi.get('EĞİTİM YERİ', '-')} | 🎓 {surucu_verisi.get('EĞİTİM TÜRÜ', '-')}</p>
+                </div>
+                <div class="score-circle">{surucu_verisi.get('SÜRÜŞ PUANI', '0')}</div>
+            </div>
+            <hr style="border: 0.1px solid #30363d; margin: 25px 0;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+                <div>
+                    <h4 style="color:#e63946 !important;">📊 Test Skorları</h4>
+                    <p><b>Ön Test:</b> {surucu_verisi.get('EĞİTİM ÖNCESİ TEST', '-')}</p>
+                    <p><b>Son Test:</b> {surucu_verisi.get('EĞİTİM SONRASI TEST', '-')}</p>
+                    <p><b>Eğitim Tarihi:</b> {surucu_verisi.get('EĞİTİM TARİHİ', '-')}</p>
+                </div>
+                <div>
+                    <h4 style="color:#e63946 !important;">⚠️ Gelişim Alanları (Zayıf Yönler)</h4>
+                    <p style="background: rgba(230,57,70,0.1); padding: 15px; border-radius: 10px; border: 1px solid #e63946; color:#ffffff !important;">
+                        {surucu_verisi.get('ZAYIF YÖNLER', 'Kayıt bulunamadı.')}
+                    </p>
+                </div>
+            </div>
+            <div style="margin-top: 30px; padding: 15px; background: #161b22; border-radius: 10px; display: flex; justify-content: space-between; border: 1px solid #30363d;">
+                <span>⏳ <b>Eğitim Yenileme:</b> {surucu_verisi.get('EĞİTİM YENİLEMEYE KAÇ GÜN KALDI?', '-')} Gün Kaldı</span>
+                <span>📅 <b>Geçerlilik:</b> {surucu_verisi.get('EĞİTİM GEÇERLİLİK TARİHİ', '-')}</span>
+            </div>
+        </div>
+    """, unsafe_allow_html=True)
+    
+    st.button(f"📄 {secilen_isim} İçin Rapor / Sertifika Oluştur")
+    if st.button("⬅️ Anasayfa Dashboard'una Dön"):
+        st.rerun()
+
+# --- SENARYO B: ANASAYFA (GENEL DASHBOARD) ---
+else:
     # 3. ÜST ÖZETLER (KPI)
     m1, m2, m3, m4 = st.columns(4)
     with m1:
         val = int(df_genel['KATILIMCI SAYISI'].sum()) if 'KATILIMCI SAYISI' in df_genel.columns else 0
         st.markdown(f'<div class="metric-card"><span>Toplam Katılımcı</span><br><b style="font-size:32px; color:white;">{val}</b></div>', unsafe_allow_html=True)
-    
     with m2:
-        if 'İŞE ALIM' in df_genel.columns:
-            ise_alim_toplam = pd.to_numeric(df_genel['İŞE ALIM'], errors='coerce').sum()
-        else:
-            ise_alim_toplam = 0
-        st.markdown(f'<div class="metric-card"><span>Toplam İşe Alım</span><br><b style="font-size:32px; color:white;">{int(ise_alim_toplam)}</b></div>', unsafe_allow_html=True)
-    
+        ise_toplam = pd.to_numeric(df_genel['İŞE ALIM'], errors='coerce').sum() if 'İŞE ALIM' in df_genel.columns else 0
+        st.markdown(f'<div class="metric-card"><span>Toplam İşe Alım</span><br><b style="font-size:32px; color:white;">{int(ise_toplam)}</b></div>', unsafe_allow_html=True)
     with m3:
-        if 'EĞİTİM YENİLEMEYE KAÇ GÜN KALDI?' in df_surucu.columns:
-            # Sayısal formata çevir
-            kalan_gunler = pd.to_numeric(df_surucu['EĞİTİM YENİLEMEYE KAÇ GÜN KALDI?'], errors='coerce')
-            k_sayi = (kalan_gunler < 30).sum()
-        else: k_sayi = 0
+        # Sadece bu kutu kırmızı (Kritik Uyarı)
+        kalanlar = pd.to_numeric(df_surucu['EĞİTİM YENİLEMEYE KAÇ GÜN KALDI?'], errors='coerce')
+        k_sayi = (kalanlar < 30).sum() if not df_surucu.empty else 0
         st.markdown(f'<div class="metric-card"><span>Kritik Yenileme (<30 Gün)</span><br><b style="font-size:32px; color:#e63946;">{k_sayi}</b></div>', unsafe_allow_html=True)
-    
     with m4:
         st.markdown(f'<div class="metric-card"><span>Toplam Eğitim</span><br><b style="font-size:32px; color:white;">{len(df_genel)}</b></div>', unsafe_allow_html=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
 
     # 4. GRAFİK VE YENİLEME TAKVİMİ
-    c_left, c_right = st.columns([1, 1.2])
+    col_l, col_r = st.columns([1, 1.2])
 
-    with c_left:
+    with col_l:
         st.subheader("⚠️ En Sık Rastlanan 10 Uygunsuzluk")
         if not df_hata.empty:
             df_hata_top = df_hata.sort_values(by=df_hata.columns[1], ascending=False).head(10)
@@ -118,29 +167,25 @@ if selected_driver == "GENEL DASHBOARD":
             fig.update_layout(paper_bgcolor='rgba(0,0,0,0)', font_color="white", margin=dict(t=0,b=0,l=0,r=0))
             st.plotly_chart(fig, use_container_width=True)
 
-    with c_right:
+    with col_r:
         st.subheader("🗓️ Eğitim Yenileme Takvimi")
-        if 'EĞİTİM YENİLEMEYE KAÇ GÜN KALDI?' in df_surucu.columns:
-            # Veriyi temizle ve sırala
+        if not df_surucu.empty and 'EĞİTİM YENİLEMEYE KAÇ GÜN KALDI?' in df_surucu.columns:
             df_takvim = df_surucu.copy()
             df_takvim['kalan_gun_num'] = pd.to_numeric(df_takvim['EĞİTİM YENİLEMEYE KAÇ GÜN KALDI?'], errors='coerce')
             df_takvim = df_takvim.sort_values(by='kalan_gun_num', ascending=True)
 
-            # Sadece 30 günün altındakileri kritik kutu olarak göster
+            # Kritik 30 gün altı önizleme
             df_kritik = df_takvim[df_takvim['kalan_gun_num'] < 30]
-            
             if not df_kritik.empty:
                 for _, row in df_kritik.head(3).iterrows():
                     st.markdown(f"""<div class="critical-box">🚨 <b>{row['Sürücü Adı']}</b>: {int(row['kalan_gun_num'])} Gün Kaldı</div>""", unsafe_allow_html=True)
             else:
-                st.info("Şu an kritik durumda (30 günden az) sürücü bulunmuyor.")
+                st.info("Kritik durumda sürücü bulunmuyor.")
 
-            # TÜM LİSTEYİ GÖSTER BUTONU (Planlama için tüm sürücüler)
-            with st.expander("🔍 Tüm Sürücülerin Yenileme Takvimini Gör (Sıralı)"):
-                # Tabloyu daha okunaklı formatla
-                display_df = df_takvim[['Sürücü Adı', 'EĞİTİM YERİ', 'EĞİTİM YENİLEMEYE KAÇ GÜN KALDI?']].copy()
-                display_df.columns = ['Sürücü Adı', 'Eğitim Yeri', 'Kalan Gün']
-                st.dataframe(display_df, use_container_width=True, hide_index=True)
+            # TÜM TAKVİM BUTONU
+            with st.expander("🔍 Tüm Sürücülerin Yenileme Planını Gör"):
+                st.dataframe(df_takvim[['Sürücü Adı', 'EĞİTİM YERİ', 'EĞİTİM YENİLEMEYE KAÇ GÜN KALDI?']].dropna(), 
+                             use_container_width=True, hide_index=True)
 
     # 5. ARŞİV
     st.divider()
