@@ -16,11 +16,12 @@ VALID_USERS = {
     "demo@betterway.com": {"password": "betterway123", "firm": "Demo Firma"},
 }
 
+# Arka plan görseli
 LOGIN_BG_URL = "https://res.cloudinary.com/dkdgj03sl/image/upload/v1769852261/c66a13ab-7751-4ebd-9ad5-6a2f907cb0da_1_bc0j6g.jpg"
 LOGO_URL = "https://assets.softr-files.com/applications/0d7745a6-552f-4fe6-a9dc-29570cb0f7b7/assets/a0e627e0-5a38-4798-9b07-b1beca18b0a4.png"
 
 # =========================================================
-# LOGIN CSS (LOGO ÜSTÜ BOŞ DİKDÖRTGEN YOK + EYE İKONU DIŞARIDA)
+# LOGIN CSS (MODERN & GLASSMORPHISM)
 # =========================================================
 def inject_login_css():
     st.markdown(
@@ -28,113 +29,141 @@ def inject_login_css():
         <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
-        /* ✅ Background + scroll kapalı */
+        /* --- GENEL SAYFA YAPISI --- */
         .stApp {{
-            background: linear-gradient(rgba(0,0,0,0.10), rgba(0,0,0,0.35)), url('{LOGIN_BG_URL}');
+            background: linear-gradient(rgba(15, 23, 42, 0.6), rgba(15, 23, 42, 0.8)), url('{LOGIN_BG_URL}');
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
-            overflow: hidden !important;
+            font-family: 'Inter', sans-serif;
         }}
-
-        /* Header/footer/sidebar gizle */
+        
         header, footer, [data-testid="stSidebar"] {{
-            visibility: hidden !important;
             display: none !important;
         }}
 
-        /* ✅ Login kartı (selector için login-box gerekli ama kendisini gizleyeceğiz) */
-        [data-testid="stVerticalBlock"] > div:has(.login-box) {{
-            background: rgba(255, 255, 255, 0.98);
-            padding: 34px 44px !important;
-            border-radius: 30px !important;
-            box-shadow: 0 40px 100px rgba(0,0,0,0.30) !important;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.55);
-            max-width: 520px;
+        /* --- LOGIN KARTI (GLASSMORPHISM) --- */
+        [data-testid="stVerticalBlock"] > div:has(.login-container) {{
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 50px 40px !important;
+            border-radius: 24px !important;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+            border: 1px solid rgba(255,255,255,0.4);
+            max-width: 480px;
             margin: auto;
-            margin-top: 10vh;
+            margin-top: 8vh;
+        }}
+        
+        .login-container {{ display: none; }} /* Seçici için gizli element */
+
+        /* --- LOGO ALANI --- */
+        .logo-container {{
+            display: flex; 
+            justify-content: center; 
+            margin-bottom: 30px;
+        }}
+        .logo-container img {{
+            width: 180px;
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
         }}
 
-        /* ✅ Logo üstündeki "boş dikdörtgen" / placeholder görünmesin */
-        .login-box {{
-            display: none !important;
-            height: 0 !important;
-            margin: 0 !important;
-            padding: 0 !important;
-        }}
-
-        /* ✅ Label */
-        .bw-label {{
-            font-family: Inter, sans-serif;
-            color: #0f172a;
-            font-weight: 800;
+        /* --- INPUT ALANLARI --- */
+        /* Label */
+        .custom-label {{
             font-size: 13px;
-            margin: 14px 0 6px 0;
-            letter-spacing: .2px;
+            font-weight: 600;
+            color: #334155;
+            margin-bottom: 6px;
+            display: block;
         }}
 
-        /* ✅ Input full width */
-        div[data-testid="stTextInput"] {{
-            width: 100% !important;
-        }}
-
+        /* Input Kutuları */
         div[data-testid="stTextInput"] input {{
-            width: 100% !important;
-            border-radius: 14px !important;
-            border: 1px solid #e2e8f0 !important;
-            background: #f8fafc !important;
-            height: 46px !important;
-            color: #0f172a !important;
-            padding-left: 14px !important;
-            padding-right: 14px !important; /* ✅ artık göz ikonu input içinde değil */
-            font-size: 14px !important;
+            background-color: #f1f5f9 !important;
+            border: 1px solid transparent !important;
+            color: #1e293b !important;
+            border-radius: 12px !important;
+            padding: 12px 16px !important;
+            font-size: 15px !important;
+            height: 50px !important;
+            transition: all 0.3s ease;
+        }}
+        
+        /* Input Focus */
+        div[data-testid="stTextInput"] input:focus {{
+            background-color: #ffffff !important;
+            border: 1px solid #ff7b00 !important; /* Marka Turuncusu */
+            box-shadow: 0 0 0 4px rgba(255, 123, 0, 0.1) !important;
         }}
 
-        /* ✅ Streamlit'in şifre "göz" butonunu TAMAMEN gizle (alan daraltmasın) */
+        /* Streamlit'in varsayılan Göz İkonunu Gizle */
         div[data-testid="stTextInput"] button {{
             display: none !important;
         }}
 
-        /* ✅ Şifreyi göster toggle satırı sağa yasla */
-        .pw-toggle-wrap {{
+        /* --- CUSTOM CHECKBOX (TOGGLE SWITCH) --- */
+        /* Checkbox Container */
+        div[data-testid="stCheckbox"] {{
+            margin-top: 10px;
             display: flex;
-            justify-content: flex-end;
-            margin-top: 6px;
-            margin-bottom: 2px;
+            justify-content: flex-end; /* Sağa yasla */
         }}
-        .pw-toggle-wrap label {{
-            font-family: Inter, sans-serif !important;
-            font-size: 12px !important;
-            font-weight: 700 !important;
-            color: #334155 !important;
+        
+        div[data-testid="stCheckbox"] label {{
+            color: #64748b !important;
+            font-size: 13px !important;
+            font-weight: 500 !important;
+        }}
+        
+        /* Checkbox kutucuğunu modernize et */
+        div[data-testid="stCheckbox"] div[role="checkbox"] {{
+            background-color: #e2e8f0;
+            border-radius: 12px;
+            border: none;
+            width: 36px !important;
+            height: 20px !important;
+            transition: 0.3s;
+        }}
+        
+        /* Checkbox Seçili Hali (Turuncu) */
+        div[data-testid="stCheckbox"] div[role="checkbox"][aria-checked="true"] {{
+            background-color: #ff7b00 !important; 
         }}
 
-        /* ✅ Turuncu giriş butonu */
+        /* --- BUTON TASARIMI --- */
         div.stButton > button {{
-            background: #ff7b00 !important;
-            color: #fff !important;
-            border-radius: 14px !important;
+            background: linear-gradient(135deg, #ff7b00 0%, #ff5500 100%) !important;
+            color: white !important;
             border: none !important;
-            font-weight: 900 !important;
-            height: 48px !important;
+            border-radius: 12px !important;
+            padding: 14px !important;
+            font-size: 16px !important;
+            font-weight: 700 !important;
+            letter-spacing: 0.5px !important;
             width: 100% !important;
-            margin-top: 18px !important;
-            transition: 0.25s all !important;
-            box-shadow: 0 6px 18px rgba(255, 123, 0, 0.25) !important;
+            margin-top: 25px !important;
+            box-shadow: 0 10px 20px rgba(255, 123, 0, 0.3) !important;
+            transition: all 0.3s ease !important;
         }}
+        
         div.stButton > button:hover {{
-            background: #e66f00 !important;
             transform: translateY(-2px);
-            box-shadow: 0 10px 24px rgba(255, 123, 0, 0.35) !important;
+            box-shadow: 0 15px 30px rgba(255, 123, 0, 0.4) !important;
         }}
 
-        .login-footer {{
+        div.stButton > button:active {{
+            transform: translateY(1px);
+        }}
+
+        .footer-text {{
             text-align: center;
-            font-size: 10px;
+            margin-top: 25px;
+            font-size: 11px;
             color: #94a3b8;
-            margin-top: 18px;
-            letter-spacing: 1px;
+            font-weight: 500;
+            letter-spacing: 0.5px;
         }}
         </style>
         """,
@@ -149,44 +178,49 @@ def login_screen():
 
     if "auth" not in st.session_state:
         st.session_state.auth = False
-    if "show_pw" not in st.session_state:
-        st.session_state.show_pw = False
+    
+    # Sayfayı 3 kolona bölüp ortadakini kullanıyoruz
+    col1, col2, col3 = st.columns([1, 1.2, 1])
 
-    _, mid, _ = st.columns([1, 1.6, 1])
+    with col2:
+        # CSS seçicisi için gizli div
+        st.markdown('<div class="login-container"></div>', unsafe_allow_html=True)
+        
+        # Logo
+        st.markdown(f'''
+            <div class="logo-container">
+                <img src="{LOGO_URL}">
+            </div>
+        ''', unsafe_allow_html=True)
 
-    with mid:
-        # selector için var ama görünmez (CSS ile gizli)
-        st.markdown('<div class="login-box"></div>', unsafe_allow_html=True)
-
-        st.image(LOGO_URL, width=220)
-        st.write("")
-
-        st.markdown('<div class="bw-label">Kullanıcı Adı</div>', unsafe_allow_html=True)
+        # Kullanıcı Adı
+        st.markdown('<span class="custom-label">Kullanıcı Adı</span>', unsafe_allow_html=True)
         username = st.text_input(
             "username",
-            placeholder="E-posta veya kullanıcı adı",
+            placeholder="ör. demo@betterway.com",
             key="u_field",
             label_visibility="collapsed"
         )
+        
+        st.markdown('<div style="height:15px"></div>', unsafe_allow_html=True) # Boşluk
 
-        st.markdown('<div class="bw-label">Şifre</div>', unsafe_allow_html=True)
-
-        # ✅ Göz ikonu input içinde değil: kendi toggle'ımız var.
-        pw_type = "default" if st.session_state.show_pw else "password"
+        # Şifre
+        st.markdown('<span class="custom-label">Şifre</span>', unsafe_allow_html=True)
+        
+        # Şifre Göster/Gizle Mantığı
+        # Önce checkbox durumunu alalım
+        show_password = st.checkbox("Şifreyi Göster", key="toggle_pw")
+        
         password = st.text_input(
             "password",
-            type=pw_type,
-            placeholder="Şifreniz",
+            type="default" if show_password else "password",
+            placeholder="••••••••",
             key="p_field",
             label_visibility="collapsed"
         )
 
-        # Sağda "Şifreyi göster" toggle (input'u ASLA daraltmaz)
-        st.markdown('<div class="pw-toggle-wrap">', unsafe_allow_html=True)
-        st.checkbox("Şifreyi göster", key="show_pw", label_visibility="visible")
-        st.markdown('</div>', unsafe_allow_html=True)
-
-        if st.button("SİSTEME GİRİŞ YAP"):
+        # Giriş Butonu
+        if st.button("GİRİŞ YAP"):
             u = username.strip().lower()
             if u in VALID_USERS and VALID_USERS[u]["password"] == password:
                 st.session_state.auth = True
@@ -194,9 +228,9 @@ def login_screen():
                 st.session_state.firm = VALID_USERS[u]["firm"]
                 st.rerun()
             else:
-                st.error("Giriş bilgileri hatalı!")
+                st.error("Giriş bilgileri hatalı, lütfen kontrol ediniz.")
 
-        st.markdown('<p class="login-footer">BETTERWAY AKADEMİ GÜVENLİ ERİŞİM © 2026</p>', unsafe_allow_html=True)
+        st.markdown('<div class="footer-text">BETTERWAY INTELLIGENCE SYSTEM v8.7<br>© 2026 Tüm Hakları Saklıdır</div>', unsafe_allow_html=True)
 
 # =========================================================
 # 2) APP LOGIC
@@ -401,4 +435,3 @@ else:
         st.info("Eğitim arşivi verisi bulunamadı.")
 
 st.markdown("<br><br><center style='color:#475569; font-size:12px;'>BetterWay Akademi Management Dashboard © 2026</center><br>", unsafe_allow_html=True)
-
