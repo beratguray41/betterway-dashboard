@@ -16,12 +16,12 @@ VALID_USERS = {
     "demo@betterway.com": {"password": "betterway123", "firm": "Demo Firma"},
 }
 
-# Arka plan görseli
+# Görsel Kaynakları
 LOGIN_BG_URL = "https://res.cloudinary.com/dkdgj03sl/image/upload/v1769852261/c66a13ab-7751-4ebd-9ad5-6a2f907cb0da_1_bc0j6g.jpg"
 LOGO_URL = "https://assets.softr-files.com/applications/0d7745a6-552f-4fe6-a9dc-29570cb0f7b7/assets/a0e627e0-5a38-4798-9b07-b1beca18b0a4.png"
 
 # =========================================================
-# LOGIN CSS (MODERN & GLASSMORPHISM)
+# 2) LOGIN CSS (GÜNCELLENMİŞ - COMPACT & MODERN)
 # =========================================================
 def inject_login_css():
     st.markdown(
@@ -29,138 +29,134 @@ def inject_login_css():
         <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
-        /* --- GENEL SAYFA YAPISI --- */
+        /* --- GENEL SAYFA --- */
         .stApp {{
             background: linear-gradient(rgba(15, 23, 42, 0.6), rgba(15, 23, 42, 0.8)), url('{LOGIN_BG_URL}');
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
             font-family: 'Inter', sans-serif;
+            overflow: hidden;
         }}
         
+        /* Gereksiz Streamlit elemanlarını gizle */
         header, footer, [data-testid="stSidebar"] {{
             display: none !important;
         }}
 
-        /* --- LOGIN KARTI (GLASSMORPHISM) --- */
+        /* --- LOGIN KARTI --- */
+        /* Padding düşürüldü, kart daraltıldı */
         [data-testid="stVerticalBlock"] > div:has(.login-container) {{
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
-            padding: 50px 40px !important;
-            border-radius: 24px !important;
+            
+            padding: 30px 25px !important; /* Dikey: 30px, Yatay: 25px */
+            
+            border-radius: 20px !important;
             box-shadow: 0 20px 60px rgba(0,0,0,0.4);
             border: 1px solid rgba(255,255,255,0.4);
-            max-width: 480px;
+            max-width: 420px; /* Kart genişliği ideal boyuta çekildi */
             margin: auto;
-            margin-top: 8vh;
+            margin-top: 10vh;
+            gap: 0.5rem !important;
         }}
         
-        .login-container {{ display: none; }} /* Seçici için gizli element */
-
-        /* --- LOGO ALANI --- */
+        /* ✅ GİZLİ DIV SORUNU ÇÖZÜMÜ: */
+        /* Login container içeren elementin sayfada yer kaplamasını engelle */
+        div[data-testid="stElementContainer"]:has(.login-container) {{
+            display: none !important;
+        }}
+        
+        /* --- LOGO --- */
         .logo-container {{
             display: flex; 
             justify-content: center; 
-            margin-bottom: 30px;
+            margin-bottom: 20px;
         }}
         .logo-container img {{
-            width: 180px;
+            width: 160px;
             filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
         }}
 
-        /* --- INPUT ALANLARI --- */
-        /* Label */
+        /* --- INPUTS --- */
         .custom-label {{
             font-size: 13px;
             font-weight: 600;
             color: #334155;
-            margin-bottom: 6px;
+            margin-bottom: 4px;
             display: block;
         }}
 
-        /* Input Kutuları */
         div[data-testid="stTextInput"] input {{
-            background-color: #f1f5f9 !important;
-            border: 1px solid transparent !important;
+            background-color: #f8fafc !important;
+            border: 1px solid #cbd5e1 !important;
             color: #1e293b !important;
-            border-radius: 12px !important;
-            padding: 12px 16px !important;
-            font-size: 15px !important;
-            height: 50px !important;
-            transition: all 0.3s ease;
+            border-radius: 10px !important;
+            padding: 0 14px !important;
+            font-size: 14px !important;
+            height: 44px !important;
+            transition: all 0.2s ease;
         }}
         
-        /* Input Focus */
         div[data-testid="stTextInput"] input:focus {{
             background-color: #ffffff !important;
-            border: 1px solid #ff7b00 !important; /* Marka Turuncusu */
-            box-shadow: 0 0 0 4px rgba(255, 123, 0, 0.1) !important;
+            border: 1px solid #ff7b00 !important;
+            box-shadow: 0 0 0 3px rgba(255, 123, 0, 0.15) !important;
         }}
 
-        /* Streamlit'in varsayılan Göz İkonunu Gizle */
+        /* Göz ikonunu gizle */
         div[data-testid="stTextInput"] button {{
             display: none !important;
         }}
 
-        /* --- CUSTOM CHECKBOX (TOGGLE SWITCH) --- */
-        /* Checkbox Container */
+        /* --- TOGGLE CHECKBOX --- */
         div[data-testid="stCheckbox"] {{
-            margin-top: 10px;
+            margin-top: 8px;
             display: flex;
             justify-content: flex-end; /* Sağa yasla */
         }}
         
         div[data-testid="stCheckbox"] label {{
             color: #64748b !important;
-            font-size: 13px !important;
-            font-weight: 500 !important;
+            font-size: 12px !important;
         }}
         
-        /* Checkbox kutucuğunu modernize et */
+        /* Checkbox kutusu */
         div[data-testid="stCheckbox"] div[role="checkbox"] {{
-            background-color: #e2e8f0;
-            border-radius: 12px;
-            border: none;
-            width: 36px !important;
-            height: 20px !important;
-            transition: 0.3s;
+            width: 34px !important;
+            height: 18px !important;
+            border-radius: 10px !important;
         }}
         
-        /* Checkbox Seçili Hali (Turuncu) */
         div[data-testid="stCheckbox"] div[role="checkbox"][aria-checked="true"] {{
             background-color: #ff7b00 !important; 
         }}
 
-        /* --- BUTON TASARIMI --- */
+        /* --- BUTTON --- */
         div.stButton > button {{
             background: linear-gradient(135deg, #ff7b00 0%, #ff5500 100%) !important;
             color: white !important;
             border: none !important;
-            border-radius: 12px !important;
-            padding: 14px !important;
-            font-size: 16px !important;
+            border-radius: 10px !important;
+            padding: 12px !important;
+            font-size: 15px !important;
             font-weight: 700 !important;
-            letter-spacing: 0.5px !important;
             width: 100% !important;
-            margin-top: 25px !important;
-            box-shadow: 0 10px 20px rgba(255, 123, 0, 0.3) !important;
-            transition: all 0.3s ease !important;
+            margin-top: 20px !important;
+            box-shadow: 0 8px 20px rgba(255, 123, 0, 0.25) !important;
+            height: 48px !important;
         }}
         
         div.stButton > button:hover {{
             transform: translateY(-2px);
-            box-shadow: 0 15px 30px rgba(255, 123, 0, 0.4) !important;
-        }}
-
-        div.stButton > button:active {{
-            transform: translateY(1px);
+            box-shadow: 0 12px 25px rgba(255, 123, 0, 0.35) !important;
         }}
 
         .footer-text {{
             text-align: center;
             margin-top: 25px;
-            font-size: 11px;
+            font-size: 10px;
             color: #94a3b8;
             font-weight: 500;
             letter-spacing: 0.5px;
@@ -171,7 +167,7 @@ def inject_login_css():
     )
 
 # =========================================================
-# LOGIN SCREEN
+# 3) LOGIN EKRANI
 # =========================================================
 def login_screen():
     inject_login_css()
@@ -179,11 +175,10 @@ def login_screen():
     if "auth" not in st.session_state:
         st.session_state.auth = False
     
-    # Sayfayı 3 kolona bölüp ortadakini kullanıyoruz
-    col1, col2, col3 = st.columns([1, 1.2, 1])
+    col1, col2, col3 = st.columns([1, 1, 1]) # Ortalamak için kolonlar
 
     with col2:
-        # CSS seçicisi için gizli div
+        # CSS Hedefleyici (Görünmez ama gerekli)
         st.markdown('<div class="login-container"></div>', unsafe_allow_html=True)
         
         # Logo
@@ -197,30 +192,29 @@ def login_screen():
         st.markdown('<span class="custom-label">Kullanıcı Adı</span>', unsafe_allow_html=True)
         username = st.text_input(
             "username",
-            placeholder="ör. demo@betterway.com",
+            placeholder="E-posta veya kullanıcı adı",
             key="u_field",
             label_visibility="collapsed"
         )
         
-        st.markdown('<div style="height:15px"></div>', unsafe_allow_html=True) # Boşluk
+        st.write("") # Küçük boşluk
 
         # Şifre
         st.markdown('<span class="custom-label">Şifre</span>', unsafe_allow_html=True)
         
-        # Şifre Göster/Gizle Mantığı
-        # Önce checkbox durumunu alalım
-        show_password = st.checkbox("Şifreyi Göster", key="toggle_pw")
+        # Şifre Göster Toggle
+        show_pw = st.checkbox("Şifreyi Göster", key="pw_toggle")
         
         password = st.text_input(
             "password",
-            type="default" if show_password else "password",
-            placeholder="••••••••",
+            type="default" if show_pw else "password",
+            placeholder="Şifreniz",
             key="p_field",
             label_visibility="collapsed"
         )
 
         # Giriş Butonu
-        if st.button("GİRİŞ YAP"):
+        if st.button("SİSTEME GİRİŞ YAP"):
             u = username.strip().lower()
             if u in VALID_USERS and VALID_USERS[u]["password"] == password:
                 st.session_state.auth = True
@@ -228,12 +222,12 @@ def login_screen():
                 st.session_state.firm = VALID_USERS[u]["firm"]
                 st.rerun()
             else:
-                st.error("Giriş bilgileri hatalı, lütfen kontrol ediniz.")
+                st.error("Giriş bilgileri hatalı!")
 
-        st.markdown('<div class="footer-text">BETTERWAY INTELLIGENCE SYSTEM v8.7<br>© 2026 Tüm Hakları Saklıdır</div>', unsafe_allow_html=True)
+        st.markdown('<div class="footer-text">BETTERWAY AKADEMİ GÜVENLİ ERİŞİM © 2026</div>', unsafe_allow_html=True)
 
 # =========================================================
-# 2) APP LOGIC
+# 4) APP LOGIC & DASHBOARD
 # =========================================================
 if "auth" not in st.session_state:
     st.session_state.auth = False
@@ -242,7 +236,11 @@ if not st.session_state.auth:
     login_screen()
     st.stop()
 
-# --- DASHBOARD CSS (SADECE GİRİŞTEN SONRA) ---
+# ---------------------------------------------------------
+# BURADAN SONRASI: DASHBOARD (Giriş Başarılıysa Çalışır)
+# ---------------------------------------------------------
+
+# Dashboard CSS (Karanlık Mod)
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
@@ -283,10 +281,10 @@ header { visibility: visible !important; display: block !important; }
 .download-btn {
     background: #e63946;
     color: white !important;
-    padding: 10px 20px;
-    border-radius: 10px;
+    padding: 8px 16px;
+    border-radius: 8px;
     text-decoration: none;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 700;
     display: inline-flex;
     align-items: center;
@@ -339,7 +337,7 @@ with st.sidebar:
     st.markdown("---")
     st.caption("BetterWay Intelligence v8.7")
 
-# --- MAIN PANEL CONTENT ---
+# --- MAIN CONTENT ---
 if menu == "🔍 Sürücü Sorgula" and 'secilen_surucu' in locals() and secilen_surucu != "Seçiniz..." and not df_surucu.empty:
     row = df_surucu[df_surucu['Sürücü Adı'] == secilen_surucu].iloc[0]
     st.markdown(f"""
@@ -366,6 +364,7 @@ if menu == "🔍 Sürücü Sorgula" and 'secilen_surucu' in locals() and secilen
         </div>
     """, unsafe_allow_html=True)
 else:
+    # KPI SATIRI
     k1, k2, k3, k4 = st.columns(4)
     with k1:
         total_katilimci = int(pd.to_numeric(df_genel.get("KATILIMCI SAYISI", pd.Series([0])), errors="coerce").fillna(0).sum()) if not df_genel.empty else 0
@@ -388,6 +387,7 @@ else:
 
     st.markdown("<br>", unsafe_allow_html=True)
 
+    # GRAFİKLER
     col_l, col_r = st.columns([1.2, 1])
 
     with col_l:
@@ -417,6 +417,7 @@ else:
     st.divider()
     st.subheader("📂 Eğitim Arşivi")
 
+    # TABLO
     if not df_genel.empty and 'EĞİTİM TARİHİ' in df_genel.columns:
         df_genel = df_genel.copy()
         df_genel['DT'] = pd.to_datetime(df_genel['EĞİTİM TARİHİ'], dayfirst=True, errors='coerce')
