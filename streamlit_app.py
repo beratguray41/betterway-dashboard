@@ -3,116 +3,126 @@ import pandas as pd
 import plotly.express as px
 
 # 1. SAYFA AYARLARI
-st.set_page_config(page_title="BetterWay Akademi Dashboard", layout="wide", page_icon="🏎️")
+st.set_page_config(page_title="BetterWay Sürücü Takip Sistemi", layout="wide", page_icon="🏎️")
 
-# Custom CSS: BetterWay Tasarımı
+# BetterWay Kurumsal Stil (CSS)
 st.markdown("""
     <style>
     .main { background-color: #fcfcfc; }
-    div[data-testid="stMetricValue"] { color: #e63946 !important; font-size: 38px !important; }
-    .report-card { 
-        background-color: white; padding: 15px; border-radius: 12px; 
-        border-left: 6px solid #e63946; box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-        margin-bottom: 10px;
+    div[data-testid="stMetricValue"] { color: #e63946 !important; font-size: 30px !important; }
+    .driver-card { 
+        background-color: white; padding: 20px; border-radius: 12px; 
+        border-top: 5px solid #e63946; box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+        margin-bottom: 20px;
     }
-    .status-badge {
-        background-color: #e63946; color: white; padding: 2px 8px; 
-        border-radius: 4px; font-size: 12px; font-weight: bold;
-    }
+    .warning-text { color: #e63946; font-weight: bold; }
+    .success-text { color: #2a9d8f; font-weight: bold; }
     </style>
     """, unsafe_allow_html=True)
 
-# 2. VERİ ÇEKME (Doğrudan CSV Üzerinden - Kütüphane Gerektirmez)
+# 2. VERİ ÇEKME FONKSİYONU
 SHEET_ID = "1Q-VMr9_wz7Op-tutiYePUhZi3OKmyITMKJmtqQuN1YU"
-URL = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv"
+SURUCU_GID = "395204791" # Tüm Sürücüler Sayfası GID
 
-@st.cache_data(ttl=60)
-def load_data():
+@st.cache_data(ttl=10)
+def load_surucu_data():
+    url = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv&gid={SURUCU_GID}"
     try:
-        data = pd.read_csv(URL)
-        data.columns = data.columns.str.strip() # Sütun isimlerindeki boşlukları temizle
-        return data.dropna(subset=['Sürücü Adı']) # Sürücü adı boş olanları at
+        data = pd.read_csv(url)
+        # Sütun isimlerindeki gizli boşlukları temizleyelim
+        data.columns = [c.strip() for c in data.columns]
+        return data
     except Exception as e:
-        st.error(f"Veri çekilemedi: {e}")
+        st.error(f"Veri çekme hatası: {e}")
         return pd.DataFrame()
 
-df = load_data()
+df = load_surucu_data()
+
+# 3. ANA BAŞLIK
+st.image("https://www.betterway.com.tr/wp-content/uploads/2021/05/logo.png", width=160)
+st.title("🛡️ Sürücü Performans ve Eğitim Takip Paneli")
 
 if not df.empty:
-    # --- SIDEBAR ---
-    with st.sidebar:
-        st.image("https://www.betterway.com.tr/wp-content/uploads/2021/05/logo.png", width=180)
-        st.markdown("### 🏢 Yönetim Paneli")
-        
-        firm_list = ["Tüm Firmalar"] + sorted(df['Firma Adı'].unique().tolist())
-        selected_firm = st.selectbox("Firma Filtresi", firm_list)
-        
-        st.markdown("---")
-        st.caption("BetterWay Akademi v1.0")
-
-    # Filtreleme
-    df_filtered = df if selected_firm == "Tüm Firmalar" else df[df['Firma Adı'] == selected_firm]
-
-    # --- ANA EKRAN ---
-    st.title("🏎️ BetterWay Sürüş Performans Analizi")
-    
-    # 3. KPI METRİKLERİ
+    # --- ÜST METRİKLER ---
     m1, m2, m3, m4 = st.columns(4)
-    with m1:
-        st.metric("Toplam Katılımcı", len(df_filtered))
-    with m2:
-        avg_score = pd.to_numeric(df_filtered['Puan'], errors='coerce').mean()
-        st.metric("Ortalama Puan", f"{avg_score:.1f}")
-    with m3:
-        top_driver = df_filtered.sort_values(by='Puan', ascending=False).iloc[0]['Sürücü Adı'] if not df_filtered.empty else "-"
-        st.metric("En İyi Sürücü", top_driver)
-    with m4:
-        st.metric("Firma Sayısı", df_filtered['Firma Adı'].nunique())
-
-    st.markdown("---")
-
-    # 4. GRAFİKLER
-    c1, c2 = st.columns([2, 1])
-    with c1:
-        st.subheader("📊 Sürücü Puan Dağılımı")
-        fig = px.bar(df_filtered, x='Sürücü Adı', y='Puan', 
-                     color='Puan', color_continuous_scale='Reds', template="plotly_white")
-        st.plotly_chart(fig, use_container_width=True)
-    with c2:
-        st.subheader("🎯 Firma Katılım Oranı")
-        fig2 = px.pie(df, names='Firma Adı', hole=0.5, color_discrete_sequence=px.colors.sequential.Reds_r)
-        st.plotly_chart(fig2, use_container_width=True)
-
-    # 5. SÜRÜCÜ LİSTESİ VE RAPORLAR
-    st.divider()
-    st.subheader("📄 Eğitim Raporları ve Detaylar")
     
-    search = st.text_input("🔍 Sürücü İsmi Ara...", placeholder="İsim yazmaya başlayın...")
-    df_display = df_filtered[df_filtered['Sürücü Adı'].str.contains(search, case=False)] if search else df_filtered
+    with m1:
+        st.metric("Toplam Sürücü", len(df))
+    with m2:
+        avg_puan = pd.to_numeric(df['SÜRÜŞ PUANI'], errors='coerce').mean()
+        st.metric("Ortalama Sürüş Puanı", f"{avg_puan:.1f}")
+    with m3:
+        # Yenilemeye 30 günden az kalanlar
+        days_col = 'EĞİTİM YENİLEMEYE KAÇ GÜN KALDI?'
+        if days_col in df.columns:
+            kalan_gun = pd.to_numeric(df[days_col], errors='coerce')
+            kritik_sayisi = (kalan_gun < 30).sum()
+            st.metric("Yenilemesi Yaklaşan", f"{kritik_sayisi} Kişi")
+    with m4:
+        st.metric("Eğitim Yerleri", df['EĞİTİM YERİ'].nunique())
 
-    if df_display.empty:
-        st.info("Kayıt bulunamadı.")
+    st.divider()
+
+    # --- FİLTRELEME VE ARAMA ---
+    c1, c2 = st.columns([1, 2])
+    with c1:
+        st.subheader("🔍 Arama & Filtre")
+        search = st.text_input("Sürücü Adı ile Ara", placeholder="Örn: Ahmet Yılmaz")
+        yer_filtre = st.multiselect("Eğitim Yerine Göre Filtrele", options=df['EĞİTİM YERİ'].unique())
+    
+    with c2:
+        st.subheader("📈 Puan Dağılım Grafiği")
+        fig = px.bar(df, x='Sürücü Adı', y='SÜRÜŞ PUANI', color='SÜRÜŞ PUANI', 
+                     color_continuous_scale='Reds', template="plotly_white")
+        fig.update_layout(height=300)
+        st.plotly_chart(fig, use_container_width=True)
+
+    # Filtreleri Uygula
+    dff = df.copy()
+    if search:
+        dff = dff[dff['Sürücü Adı'].str.contains(search, case=False, na=False)]
+    if yer_filtre:
+        dff = dff[dff['EĞİTİM YERİ'].isin(yer_filtre)]
+
+    # --- SÜRÜCÜ KARTLARI ---
+    st.divider()
+    st.subheader("📋 Detaylı Sürücü Karneleri")
+
+    if dff.empty:
+        st.info("Kriterlere uygun sürücü bulunamadı.")
     else:
-        for index, row in df_display.iterrows():
-            st.markdown(f"""
-                <div class="report-card">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
+        for _, row in dff.iterrows():
+            with st.container():
+                st.markdown(f"""
+                <div class="driver-card">
+                    <div style="display: flex; justify-content: space-between; align-items: start;">
                         <div>
-                            <span style="font-size: 1.1rem; font-weight: bold; color: #1d3557;">{row['Sürücü Adı']}</span>
-                            <span class="status-badge" style="margin-left:10px;">{row['Firma Adı']}</span><br>
-                            <small style="color: #666;">Eğitim Tarihi: {row['Tarih']}</small>
+                            <h3 style="margin:0;">👤 {row.get('Sürücü Adı', 'N/A')}</h3>
+                            <p style="color:#666; margin-bottom:10px;">📍 {row.get('EĞİTİM YERİ', '-')} | 🎓 {row.get('EĞİTİM TÜRÜ', '-')}</p>
                         </div>
                         <div style="text-align: right;">
-                            <span style="font-size: 1.4rem; color: #e63946; font-weight: bold;">{row['Puan']} Puan</span>
+                            <div style="font-size: 24px; font-weight: bold; color: #e63946;">{row.get('SÜRÜŞ PUANI', '0')} Puan</div>
+                            <small style="color:#888;">Tarih: {row.get('EĞİTİM TARİHİ', '-')}</small>
                         </div>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; background: #f9f9f9; padding: 15px; border-radius: 8px;">
+                        <div>
+                            <b>📝 Test Sonuçları:</b><br>
+                            Ön Test: {row.get('EĞİTİM ÖNCESİ TEST', '-')} | Son Test: {row.get('EĞİTİM SONRASI TEST', '-')}
+                        </div>
+                        <div>
+                            <b>⚠️ Zayıf Yönler:</b><br>
+                            <span style="color:#e63946;">{row.get('ZAYIF YÖNLER', 'Belirtilmemiş')}</span>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 15px; display: flex; justify-content: space-between; align-items: center;">
+                        <span>⏳ <b>Eğitim Yenileme:</b> {row.get('EĞİTİM YENİLEMEYE KAÇ GÜN KALDI?', '-')} Gün Kaldı</span>
+                        <span style="font-size: 0.8rem; color:#888;">Geçerlilik: {row.get('EĞİTİM GEÇERLİLİK TARİHİ', '-')}</span>
                     </div>
                 </div>
                 """, unsafe_allow_html=True)
-            
-            link = row['Rapor Linki'] if pd.notnull(row['Rapor Linki']) else "#"
-            st.link_button(f"📄 {row['Sürücü Adı']} - Raporu Görüntüle", link)
-else:
-    st.warning("Veri yüklenemedi. Lütfen Google Sheets linkini ve sütun başlıklarını kontrol edin.")
 
-st.markdown("---")
-st.markdown("<center style='color: #999;'>BetterWay Akademi Dashboard © 2026</center>", unsafe_allow_html=True)
+else:
+    st.warning("E-tablodaki veriler okunamadı. Lütfen 'Tüm Sürücüler' sayfasındaki sütun başlıklarını ve GID numarasını kontrol edin.")
