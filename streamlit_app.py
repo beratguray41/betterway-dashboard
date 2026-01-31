@@ -236,7 +236,6 @@ else:
                 height=350,
                 font=dict(family="Inter", size=12)
             )
-            fig.update_traces(marker_round=True)
             st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
 
     with col_r:
