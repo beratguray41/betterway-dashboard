@@ -26,18 +26,15 @@ st.markdown("""
         font-family: 'Inter', sans-serif;
     }
 
-    /* Giriş Ekranı Arka Planı */
+    /* Giriş Ekranı Arka Planı - Aydınlık ve Sade */
     .login-bg {
         position: fixed;
         top: 0; left: 0; width: 100%; height: 100%;
-        background: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.4)), 
-                    url('https://res.cloudinary.com/dkdgj03sl/image/upload/v1769852261/c66a13ab-7751-4ebd-9ad5-6a2f907cb0da_1_bc0j6g.jpg');
-        background-size: cover;
-        background-position: center;
+        background-color: #f8fafc; /* Çok hafif modern gri/mavi tonu */
         z-index: -1;
     }
 
-    /* Giriş Formu Konteynırı - Kaydırmayı engellemek için tam ekran */
+    /* Giriş Formu Konteynırı - Tam Merkezleme */
     .login-container {
         position: fixed;
         top: 0;
@@ -48,30 +45,25 @@ st.markdown("""
         justify-content: center;
         align-items: center;
         z-index: 1000;
-        background: transparent;
         overflow: hidden;
     }
     
+    /* Beyaz Yumuşak Köşeli Kart Tasarımı */
     .login-card {
-        background: rgba(255, 255, 255, 0.98);
-        padding: 35px;
-        border-radius: 28px;
-        box-shadow: 0 30px 60px rgba(0,0,0,0.4);
+        background: #ffffff;
+        padding: 50px 40px;
+        border-radius: 32px; /* Yumuşak köşeler */
+        box-shadow: 0 20px 40px rgba(0,0,0,0.04); /* Hafif ve profesyonel gölge */
         width: 90%;
-        max-width: 420px;
+        max-width: 440px;
         text-align: center;
-        backdrop-filter: blur(15px);
-        border: 1px solid rgba(255,255,255,0.4);
+        border: 1px solid #f1f5f9;
     }
 
-    /* Dashboard Genel Tasarımı (Koyu Tema) */
-    .stApp {
-        background: radial-gradient(circle at top right, #1d1f27, #0f1115);
-    }
-
-    /* Login ekranındayken Streamlit'in üst boşluğunu ve scroll barını gizle */
+    /* Login ekranındayken Streamlit öğelerini gizleme */
     body:has(.login-container) {
-        overflow: hidden;
+        overflow: hidden !important;
+        background-color: #f8fafc !important;
     }
     body:has(.login-container) header {
         display: none !important;
@@ -79,6 +71,11 @@ st.markdown("""
     body:has(.login-container) [data-testid="stVerticalBlock"] {
         padding: 0 !important;
         gap: 0 !important;
+    }
+
+    /* Dashboard Tasarımı (Giriş yaptıktan sonraki koyu tema) */
+    .stApp {
+        background: radial-gradient(circle at top right, #1d1f27, #0f1115);
     }
 
     [data-testid="stSidebar"] {
@@ -102,7 +99,6 @@ st.markdown("""
         border-radius: 50%;
         display: flex; align-items: center; justify-content: center;
         font-size: 32px; font-weight: 800;
-        box-shadow: 0 0 20px rgba(230, 57, 70, 0.2);
     }
 
     .download-btn {
@@ -116,31 +112,33 @@ st.markdown("""
         display: inline-flex;
         align-items: center;
         gap: 8px;
-        transition: 0.3s all;
-    }
-    .download-btn:hover {
-        background: #ff4d4d;
-        transform: translateY(-2px);
     }
     
-    .kpi-title { color: #94a3b8; font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
-    .kpi-value { color: #ffffff; font-size: 34px; font-weight: 700; margin-top: 5px; }
+    .kpi-title { color: #94a3b8; font-size: 13px; font-weight: 600; text-transform: uppercase; }
+    .kpi-value { color: #ffffff; font-size: 34px; font-weight: 700; }
 
-    /* Giriş Butonu Modernizasyon */
+    /* Modern Giriş Butonu */
     div.stButton > button {
-        background-color: #1e253d !important;
+        background-color: #1e293b !important; /* Lacivert/Siyah tonu */
         color: white !important;
-        border-radius: 12px !important;
+        border-radius: 14px !important;
         border: none !important;
         font-weight: 600 !important;
         height: 3.5rem !important;
         transition: 0.3s all !important;
-        margin-top: 10px;
+        margin-top: 15px;
     }
     div.stButton > button:hover {
-        background-color: #e63946 !important;
-        box-shadow: 0 10px 20px rgba(230, 57, 70, 0.2) !important;
+        background-color: #0075ff !important; /* Üzerine gelince canlı mavi */
         transform: translateY(-2px) !important;
+    }
+
+    /* Giriş Input Alanları */
+    .stTextInput input {
+        border-radius: 14px !important;
+        border: 1px solid #e2e8f0 !important;
+        background-color: #f8fafc !important;
+        padding: 12px !important;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -148,33 +146,31 @@ st.markdown("""
 # --- GİRİŞ EKRANI FONKSİYONU ---
 def show_login_screen():
     st.markdown('<div class="login-bg"></div>', unsafe_allow_html=True)
-    
-    # Tüm ekranı kaplayan ve scrollu engelleyen konteynır
     st.markdown('<div class="login-container">', unsafe_allow_html=True)
     
-    # İçerik sütunu
-    _, center_col, _ = st.columns([1, 1.5, 1])
+    _, center_col, _ = st.columns([1, 1.4, 1])
     
     with center_col:
         st.markdown('<div class="login-card">', unsafe_allow_html=True)
         
         # Logo
-        st.image("https://assets.softr-files.com/applications/0d7745a6-552f-4fe6-a9dc-29570cb0f7b7/assets/a0e627e0-5a38-4798-9b07-b1beca18b0a4.png", width=220)
+        st.image("https://assets.softr-files.com/applications/0d7745a6-552f-4fe6-a9dc-29570cb0f7b7/assets/a0e627e0-5a38-4798-9b07-b1beca18b0a4.png", width=240)
         
-        st.markdown("<h2 style='color:#1e253d; margin-top:20px; font-weight:700; letter-spacing:-1px; margin-bottom:5px;'>Hoş Geldiniz</h2>", unsafe_allow_html=True)
-        st.markdown("<p style='color:#6f727c; font-size:14px; margin-bottom:25px;'>Devam etmek için bilgilerinizi girin</p>", unsafe_allow_html=True)
+        st.markdown("<h2 style='color:#0f172a; margin-top:30px; font-weight:700; letter-spacing:-0.5px;'>Sisteme Giriş</h2>", unsafe_allow_html=True)
+        st.markdown("<p style='color:#64748b; font-size:15px; margin-bottom:35px;'>BetterWay Akademi portalına hoş geldiniz</p>", unsafe_allow_html=True)
         
+        # Form Alanları
         username = st.text_input("Kullanıcı Adı", placeholder="Kullanıcı adınızı girin", key="user_login", label_visibility="collapsed")
         password = st.text_input("Şifre", type="password", placeholder="Şifrenizi girin", key="pass_login", label_visibility="collapsed")
         
-        if st.button("Sisteme Giriş Yap", use_container_width=True):
+        if st.button("Giriş Yap", use_container_width=True):
             if username == LOGIN_USERNAME and password == LOGIN_PASSWORD:
                 st.session_state['logged_in'] = True
                 st.rerun()
             else:
                 st.error("Giriş bilgileri hatalı!")
         
-        st.markdown("<p style='color:#bbb; font-size:11px; margin-top:20px;'>BetterWay Akademi Güvenli Erişim © 2026</p>", unsafe_allow_html=True)
+        st.markdown("<p style='color:#94a3b8; font-size:12px; margin-top:30px;'>© 2026 BetterWay Akademi Güvenli Erişim</p>", unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
     
     st.markdown('</div>', unsafe_allow_html=True)
@@ -218,7 +214,7 @@ else:
         if st.button("Güvenli Çıkış"):
             st.session_state['logged_in'] = False
             st.rerun()
-        st.caption("BetterWay Intelligence v8.1")
+        st.caption("BetterWay Intelligence v8.2")
 
     # --- SAYFA İÇERİKLERİ ---
     if menu == "🔍 Sürücü Sorgula" and 'secilen_surucu' in locals() and secilen_surucu != "Seçiniz...":
