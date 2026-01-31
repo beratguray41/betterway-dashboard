@@ -9,20 +9,8 @@ st.set_page_config(page_title="BetterWay Akademi | Dashboard", layout="wide", pa
 st.markdown("""
     <style>
     .stApp { background-color: #0b0e14; color: #ffffff; }
+    [data-testid="stSidebar"] { background-color: #161b22; border-right: 1px solid #30363d; }
     
-    /* Sidebar Menü Tasarımı */
-    [data-testid="stSidebar"] {
-        background-color: #161b22;
-        border-right: 1px solid #30363d;
-    }
-    
-    /* Sidebar'daki Radyo Butonları (Menü gibi göstermek için) */
-    .stRadio > div {
-        background-color: transparent;
-        border-radius: 10px;
-    }
-    
-    /* Kart Yapıları */
     .metric-card {
         background: #161b22;
         padding: 20px;
@@ -43,6 +31,22 @@ st.markdown("""
         width: 85px; height: 85px; border-radius: 50%;
         display: flex; align-items: center; justify-content: center;
         font-size: 26px; font-weight: bold;
+    }
+    .critical-box {
+        background: rgba(230, 57, 70, 0.1);
+        padding: 12px;
+        border-radius: 8px;
+        border-left: 5px solid #e63946;
+        margin-bottom: 8px;
+    }
+    .success-box {
+        background: rgba(40, 167, 69, 0.1);
+        padding: 12px;
+        border-radius: 8px;
+        border-left: 5px solid #28a745;
+        color: #28a745;
+        font-weight: bold;
+        margin-bottom: 8px;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -66,12 +70,11 @@ df_genel = load_data(GENEL_GID)
 df_surucu = load_data(SURUCU_GID)
 df_hata = load_data(HATA_OZETI_GID)
 
-# --- SOL BAR (SIDEBAR) GÖRSEL DÜZENLEME ---
+# --- SIDEBAR NAVİGASYON ---
 with st.sidebar:
     st.image("https://www.betterway.com.tr/wp-content/uploads/2021/05/logo.png", width=200)
     st.markdown("<br>", unsafe_allow_html=True)
     
-    # 🏠 ANA MENÜ SEÇİMİ
     menu = st.radio(
         "📍 MENÜ",
         options=["🏠 ANASAYFA PANELİ", "🔍 SÜRÜCÜ SORGULAMA"],
@@ -80,27 +83,22 @@ with st.sidebar:
     
     st.markdown("---")
     
-    # Sadece Sürücü Sorgulama seçiliyse arama kutusunu göster
     if menu == "🔍 SÜRÜCÜ SORGULAMA":
         if not df_surucu.empty:
             ismler = sorted(df_surucu['Sürücü Adı'].dropna().unique().tolist())
             secilen_surucu = st.selectbox("👤 Sürücü Seçin", options=["Seçiniz..."] + ismler)
-        else:
-            secilen_surucu = "Seçiniz..."
-    else:
-        secilen_surucu = "Seçiniz..."
+        else: secilen_surucu = "Seçiniz..."
+    else: secilen_surucu = "Seçiniz..."
 
     st.divider()
-    st.caption("BetterWay Akademi v5.5")
+    st.caption("BetterWay Akademi v5.6")
 
-# --- ANA PANEL İÇERİĞİ ---
+# --- ANA PANEL ---
 st.title("🛡️ BetterWay Operasyon Paneli")
 
-# --- DURUM 1: SÜRÜCÜ SORGULAMA EKRANI ---
+# --- DURUM 1: SÜRÜCÜ SORGULAMA ---
 if menu == "🔍 SÜRÜCÜ SORGULAMA" and secilen_surucu != "Seçiniz...":
     st.subheader(f"📊 Kişisel Performans Karnesi")
-    
-    # Veriyi bul
     row = df_surucu[df_surucu['Sürücü Adı'] == secilen_surucu].iloc[0]
     
     st.markdown(f"""
@@ -129,9 +127,9 @@ if menu == "🔍 SÜRÜCÜ SORGULAMA" and secilen_surucu != "Seçiniz...":
         </div>
     """, unsafe_allow_html=True)
 
-# --- DURUM 2: ANASAYFA DASHBOARD ---
+# --- DURUM 2: ANASAYFA ---
 else:
-    # Üst KPI Kutuları
+    # KPI Kutuları
     c1, c2, c3, c4 = st.columns(4)
     with c1:
         val = int(df_genel['KATILIMCI SAYISI'].sum()) if 'KATILIMCI SAYISI' in df_genel.columns else 0
@@ -148,7 +146,7 @@ else:
 
     st.markdown("<br>", unsafe_allow_html=True)
 
-    # Grafik ve Takvim
+    # Grafik ve Yenileme Planı
     l, r = st.columns([1, 1.2])
     with l:
         st.subheader("⚠️ Uygunsuzluk Özeti")
@@ -163,7 +161,17 @@ else:
             df_t = df_surucu.copy()
             df_t['kg'] = pd.to_numeric(df_t['EĞİTİM YENİLEMEYE KAÇ GÜN KALDI?'], errors='coerce')
             df_t = df_t.sort_values(by='kg', ascending=True)
-            with st.expander("🔻 TÜM SÜRÜCÜ LİSTESİ (Sıralı)"):
+            
+            # Kritik Durum Kontrolü
+            crit_df = df_t[df_t['kg'] < 30]
+            if not crit_df.empty:
+                for _, row in crit_df.head(3).iterrows():
+                    st.markdown(f"""<div class="critical-box">🚨 <b>{row['Sürücü Adı']}</b>: {int(row['kg'])} Gün Kaldı</div>""", unsafe_allow_html=True)
+            else:
+                st.markdown('<div class="success-box">✅ Tüm eğitim yenileme süreleri güncel.</div>', unsafe_allow_html=True)
+            
+            # Altındaki Tablo (Her zaman görünür veya expander içinde)
+            with st.expander("🔻 TÜM SÜRÜCÜ LİSTESİ (Planlama İçin tıklayın)"):
                 st.dataframe(df_t[['Sürücü Adı', 'EĞİTİM YERİ', 'EĞİTİM YENİLEMEYE KAÇ GÜN KALDI?']].dropna(), use_container_width=True, hide_index=True)
 
     # Arşiv
