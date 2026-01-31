@@ -21,7 +21,7 @@ LOGIN_BG_URL = "https://res.cloudinary.com/dkdgj03sl/image/upload/v1769852261/c6
 LOGO_URL = "https://assets.softr-files.com/applications/0d7745a6-552f-4fe6-a9dc-29570cb0f7b7/assets/a0e627e0-5a38-4798-9b07-b1beca18b0a4.png"
 
 # =========================================================
-# 2) LOGIN CSS (GÜNCELLENMİŞ - COMPACT & MODERN)
+# 2) LOGIN CSS (GÜNCELLENMİŞ)
 # =========================================================
 def inject_login_css():
     st.markdown(
@@ -45,24 +45,22 @@ def inject_login_css():
         }}
 
         /* --- LOGIN KARTI --- */
-        /* Padding düşürüldü, kart daraltıldı */
         [data-testid="stVerticalBlock"] > div:has(.login-container) {{
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             
-            padding: 30px 25px !important; /* Dikey: 30px, Yatay: 25px */
+            padding: 35px 30px !important; /* Padding biraz daha rahatlatıldı */
             
             border-radius: 20px !important;
             box-shadow: 0 20px 60px rgba(0,0,0,0.4);
             border: 1px solid rgba(255,255,255,0.4);
-            max-width: 420px; /* Kart genişliği ideal boyuta çekildi */
+            max-width: 440px;
             margin: auto;
             margin-top: 10vh;
             gap: 0.5rem !important;
         }}
         
-        /* ✅ GİZLİ DIV SORUNU ÇÖZÜMÜ: */
         /* Login container içeren elementin sayfada yer kaplamasını engelle */
         div[data-testid="stElementContainer"]:has(.login-container) {{
             display: none !important;
@@ -72,10 +70,10 @@ def inject_login_css():
         .logo-container {{
             display: flex; 
             justify-content: center; 
-            margin-bottom: 20px;
+            margin-bottom: 25px;
         }}
         .logo-container img {{
-            width: 160px;
+            width: 200px; /* ✅ LOGO BÜYÜTÜLDÜ (Eskisi 160px) */
             filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
         }}
 
@@ -84,7 +82,7 @@ def inject_login_css():
             font-size: 13px;
             font-weight: 600;
             color: #334155;
-            margin-bottom: 4px;
+            margin-bottom: 5px;
             display: block;
         }}
 
@@ -95,7 +93,7 @@ def inject_login_css():
             border-radius: 10px !important;
             padding: 0 14px !important;
             font-size: 14px !important;
-            height: 44px !important;
+            height: 48px !important; /* Inputlar biraz daha dolgun */
             transition: all 0.2s ease;
         }}
         
@@ -110,29 +108,6 @@ def inject_login_css():
             display: none !important;
         }}
 
-        /* --- TOGGLE CHECKBOX --- */
-        div[data-testid="stCheckbox"] {{
-            margin-top: 8px;
-            display: flex;
-            justify-content: flex-end; /* Sağa yasla */
-        }}
-        
-        div[data-testid="stCheckbox"] label {{
-            color: #64748b !important;
-            font-size: 12px !important;
-        }}
-        
-        /* Checkbox kutusu */
-        div[data-testid="stCheckbox"] div[role="checkbox"] {{
-            width: 34px !important;
-            height: 18px !important;
-            border-radius: 10px !important;
-        }}
-        
-        div[data-testid="stCheckbox"] div[role="checkbox"][aria-checked="true"] {{
-            background-color: #ff7b00 !important; 
-        }}
-
         /* --- BUTTON --- */
         div.stButton > button {{
             background: linear-gradient(135deg, #ff7b00 0%, #ff5500 100%) !important;
@@ -143,9 +118,9 @@ def inject_login_css():
             font-size: 15px !important;
             font-weight: 700 !important;
             width: 100% !important;
-            margin-top: 20px !important;
+            margin-top: 25px !important;
             box-shadow: 0 8px 20px rgba(255, 123, 0, 0.25) !important;
-            height: 48px !important;
+            height: 50px !important;
         }}
         
         div.stButton > button:hover {{
@@ -175,10 +150,10 @@ def login_screen():
     if "auth" not in st.session_state:
         st.session_state.auth = False
     
-    col1, col2, col3 = st.columns([1, 1, 1]) # Ortalamak için kolonlar
+    col1, col2, col3 = st.columns([1, 1, 1])
 
     with col2:
-        # CSS Hedefleyici (Görünmez ama gerekli)
+        # CSS Hedefleyici
         st.markdown('<div class="login-container"></div>', unsafe_allow_html=True)
         
         # Logo
@@ -199,15 +174,11 @@ def login_screen():
         
         st.write("") # Küçük boşluk
 
-        # Şifre
+        # Şifre (ARTIK GÖRÜNÜR - type='password' kaldırıldı)
         st.markdown('<span class="custom-label">Şifre</span>', unsafe_allow_html=True)
-        
-        # Şifre Göster Toggle
-        show_pw = st.checkbox("Şifreyi Göster", key="pw_toggle")
-        
         password = st.text_input(
             "password",
-            type="default" if show_pw else "password",
+            # type="password",  <-- BU SATIR KALDIRILDI (Artık yazı görünüyor)
             placeholder="Şifreniz",
             key="p_field",
             label_visibility="collapsed"
