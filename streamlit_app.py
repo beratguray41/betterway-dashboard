@@ -401,4 +401,4 @@ else:
         st.info("Eğitim arşivi verisi bulunamadı.")
 
 st.markdown("<br><br><center style='color:#475569; font-size:12px;'>BetterWay Akademi Management Dashboard © 2026</center><br>", unsafe_allow_html=True)
-``
+
