@@ -389,12 +389,12 @@ with st.sidebar:
         else: secilen_surucu = "Seçiniz..."
     else: secilen_surucu = "Seçiniz..."
 
-    st.markdown("<div style='margin-top: 40px;'></div>", unsafe_allow_html=True)
-    if st.button("🚪 Güvenli Çıkış", use_container_width=True):
-        # ÇIKIŞ YAPILDIĞINDA COOKIE SİLİNİR
-        cookie_manager.delete('betterway_auth_token')
-        st.session_state.auth = False
-        st.rerun()
+    # st.markdown("<div style='margin-top: 40px;'></div>", unsafe_allow_html=True)
+    # ÇIKIŞ BUTONU KALDIRILDI
+    # if st.button("🚪 Güvenli Çıkış", use_container_width=True):
+    #     cookie_manager.delete('betterway_auth_token')
+    #     st.session_state.auth = False
+    #     st.rerun()
 
     st.markdown("---")
     st.caption("BetterWay Intelligence v6.1")
@@ -458,9 +458,39 @@ else:
     with col_l:
         st.markdown("<h3 style='font-size:20px; margin-bottom:20px;'>⚠️ En Sık Rastlanan Uygunsuzluklar</h3>", unsafe_allow_html=True)
         if not df_hata.empty:
+            # Gelişmiş Premium Grafik Tasarımı
             df_h_plot = df_hata.sort_values(by=df_hata.columns[1], ascending=True).tail(8)
-            fig = px.bar(df_h_plot, x=df_hata.columns[1], y=df_hata.columns[0], orientation='h', template="plotly_dark", color_discrete_sequence=['#e63946'])
-            fig.update_layout(paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', margin=dict(t=0, b=0, l=0, r=0), xaxis=dict(showgrid=False), height=350)
+            cat_col = df_hata.columns[0]
+            val_col = df_hata.columns[1]
+            
+            fig = px.bar(
+                df_h_plot, 
+                x=val_col, 
+                y=cat_col, 
+                orientation='h',
+                text=val_col, # Barların ucuna değeri yaz
+                color=val_col, # Değere göre renk değişimi (Gradyan)
+                color_continuous_scale=['#334155', '#e63946'] # Koyu griden kırmızıya geçiş
+            )
+            
+            fig.update_layout(
+                paper_bgcolor='rgba(0,0,0,0)', 
+                plot_bgcolor='rgba(0,0,0,0)',
+                margin=dict(t=10, b=10, l=0, r=0),
+                height=350,
+                xaxis=dict(showgrid=False, showticklabels=False, title=None), # X ekseni temizliği
+                yaxis=dict(showgrid=False, color='#cbd5e1', title=None, tickfont=dict(size=13, family="Plus Jakarta Sans")), # Y ekseni font ayarı
+                showlegend=False,
+                coloraxis_showscale=False # Renk barını gizle
+            )
+            
+            fig.update_traces(
+                textposition='outside', # Yazıyı barın dışına koy
+                marker_line_width=0, # Bar çerçevesini kaldır
+                textfont=dict(color='white', size=12, family="Plus Jakarta Sans"), # Değer yazısı fontu
+                width=0.7 # Bar kalınlığı
+            )
+            
             st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
 
     with col_r:
