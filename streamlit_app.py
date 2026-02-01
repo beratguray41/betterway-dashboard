@@ -34,7 +34,7 @@ def inject_login_css():
         
         header, footer, [data-testid="stSidebar"] {{ display: none !important; }}
 
-        /* Login Kartı - Geliştirilmiş Tasarım */
+        /* Login Kartı */
         [data-testid="stVerticalBlock"] > div:has(.login-card) {{
             background: rgba(255, 255, 255, 0.04);
             backdrop-filter: blur(25px);
@@ -43,12 +43,12 @@ def inject_login_css():
             border-radius: 35px !important;
             box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.6);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            max-width: 480px; /* Biraz daha genişletildi */
+            max-width: 480px;
             margin: auto;
             margin-top: 10vh;
             display: flex;
             flex-direction: column;
-            justify-content: center;
+            align-items: center;
         }}
         
         div[data-testid="stElementContainer"]:has(.login-card) {{ display: none !important; }}
@@ -72,19 +72,34 @@ def inject_login_css():
             margin-bottom: 40px;
         }}
 
-        /* Şifre Input Tasarımı - Daha Yüksek ve Geniş */
+        /* Şifre Input ve Buton Konteynırı */
+        div[data-testid="stTextInput"], div.stButton {{
+            width: 100% !important;
+        }}
+
+        /* Şifre Input Tasarımı - Sabitlendi */
         div[data-testid="stTextInput"] label {{ display: none !important; }}
         div[data-testid="stTextInput"] input {{
             background-color: rgba(0, 0, 0, 0.35) !important;
             border: 1px solid rgba(255, 255, 255, 0.15) !important;
             color: white !important;
             border-radius: 18px !important;
-            padding: 20px !important;
+            padding: 0 50px 0 25px !important; /* Göz simgesi için sağdan boşluk */
             font-size: 18px !important;
-            height: 70px !important; /* Daha yüksek yapıldı */
+            height: 65px !important; /* Standart yükseklik */
             transition: all 0.3s ease;
-            text-align: center;
-            letter-spacing: 5px;
+            text-align: left !important; /* Kayma sorununu önlemek için sola hizalandı */
+            letter-spacing: 2px;
+            width: 100% !important;
+        }}
+        
+        /* Şifre Göz Simgesi (Eye Icon) Hizalaması */
+        div[data-testid="stTextInput"] button {{
+            top: 50% !important;
+            transform: translateY(-50%) !important;
+            color: rgba(255,255,255,0.6) !important;
+            margin-right: 10px !important;
+            background: transparent !important;
         }}
         
         div[data-testid="stTextInput"] input:focus {{
@@ -93,7 +108,7 @@ def inject_login_css():
             box-shadow: 0 0 25px rgba(255, 123, 0, 0.25) !important;
         }}
 
-        /* Giriş Butonu - Daha Yüksek ve Geniş */
+        /* Giriş Butonu - Input ile tam uyumlu genişlik ve yükseklik */
         div.stButton > button {{
             background: linear-gradient(135deg, #ff7b00 0%, #ff4500 100%) !important;
             color: white !important;
@@ -103,7 +118,7 @@ def inject_login_css():
             font-size: 18px !important;
             font-weight: 800 !important;
             width: 100% !important;
-            height: 70px !important; /* Daha yüksek yapıldı */
+            height: 65px !important;
             margin-top: 25px !important;
             box-shadow: 0 12px 24px rgba(255, 69, 0, 0.35) !important;
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
@@ -112,7 +127,7 @@ def inject_login_css():
         }}
         
         div.stButton > button:hover {{
-            transform: translateY(-4px) scale(1.01);
+            transform: translateY(-4px) scale(1.02);
             box-shadow: 0 20px 40px rgba(255, 69, 0, 0.5) !important;
             filter: brightness(1.15);
         }}
@@ -133,7 +148,7 @@ def inject_login_css():
 def login_screen():
     inject_login_css()
     
-    # Sayfayı yatayda tam ortalamak için kolon yapısı
+    # Merkezi hizalama için ana kolon yapısı
     _, col2, _ = st.columns([1, 2, 1])
     with col2:
         st.markdown('<div class="login-card"></div>', unsafe_allow_html=True)
@@ -141,8 +156,10 @@ def login_screen():
         st.markdown('<div class="login-header">Sistem Erişimi</div>', unsafe_allow_html=True)
         st.markdown('<div class="login-subtitle">Lütfen size özel erişim şifresini giriniz.</div>', unsafe_allow_html=True)
 
-        password = st.text_input("Şifre", type="password", placeholder="••••••••", label_visibility="collapsed")
+        # Şifre kutusu
+        password = st.text_input("Şifre", type="password", placeholder="Şifrenizi girin", label_visibility="collapsed")
 
+        # Giriş butonu
         if st.button("SİSTEME GİRİŞ YAP"):
             if password in PASSWORDS:
                 st.session_state.auth = True
