@@ -27,7 +27,7 @@ PASSWORDS = {
 }
 
 LOGIN_BG_URL = "https://res.cloudinary.com/dkdgj03sl/image/upload/v1769852261/c66a13ab-7751-4ebd-9ad5-6a2f907cb0da_1_bc0j6g.jpg"
-LOGO_URL = "https://res.cloudinary.com/dkdgj03sl/image/upload/v1769926229/betterway_logo_arkaplan_2_jpdrgg.png"
+LOGO_URL = "https://res.cloudinary.com/dkdgj03sl/image/upload/v1769924744/betterway_logo_arkaplan_xffybj.png"
 
 def inject_login_css():
     st.markdown(
@@ -44,16 +44,16 @@ def inject_login_css():
         
         header, footer, [data-testid="stSidebar"] {{ display: none !important; }}
 
-        /* Login Kartı - Ultra Glassmorphism */
+        /* Login Kartı - Genişletildi (450px -> 520px) */
         [data-testid="stVerticalBlock"] > div:has(.login-card) {{
-            background: rgba(20, 20, 25, 0.6);
-            backdrop-filter: blur(25px);
-            -webkit-backdrop-filter: blur(25px);
-            padding: 60px 40px !important;
+            background: rgba(20, 20, 25, 0.65);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            padding: 60px 50px !important;
             border-radius: 24px !important;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            max-width: 450px;
+            box-shadow: 0 30px 60px -10px rgba(0, 0, 0, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            max-width: 520px; /* GENİŞLETİLDİ */
             margin: auto;
             margin-top: 10vh;
         }}
@@ -61,12 +61,12 @@ def inject_login_css():
         div[data-testid="stElementContainer"]:has(.login-card) {{ display: none !important; }}
         
         .logo-container {{ text-align: center; margin-bottom: 30px; }}
-        .logo-container img {{ width: 200px; filter: drop-shadow(0 0 20px rgba(255,255,255,0.1)); }}
+        .logo-container img {{ width: 220px; filter: drop-shadow(0 0 25px rgba(255,255,255,0.15)); }}
 
         .login-header {{
             color: white;
             text-align: center;
-            font-size: 26px;
+            font-size: 28px;
             font-weight: 700;
             margin-bottom: 20px;
             letter-spacing: -0.5px;
@@ -74,10 +74,10 @@ def inject_login_css():
         
         /* İki Paragraflı Açıklama Tasarımı */
         .login-desc-1 {{
-            color: #cbd5e1;
+            color: #e2e8f0;
             text-align: center;
-            font-size: 15px;
-            line-height: 1.5;
+            font-size: 16px;
+            line-height: 1.6;
             margin-bottom: 10px;
             font-weight: 500;
         }}
@@ -86,58 +86,64 @@ def inject_login_css():
             color: #94a3b8;
             text-align: center;
             font-size: 13px;
-            margin-bottom: 35px;
+            margin-bottom: 40px;
             font-weight: 400;
         }}
 
-        /* Şifre Input Tasarımı */
+        /* --- PREMIUM PAROLA KUTUSU TASARIMI --- */
         div[data-testid="stTextInput"] label {{ display: none !important; }}
+        
         div[data-testid="stTextInput"] input {{
-            background-color: rgba(0, 0, 0, 0.4) !important;
+            background-color: rgba(15, 15, 20, 0.6) !important;
             border: 1px solid rgba(255, 255, 255, 0.15) !important;
             color: white !important;
-            border-radius: 12px !important;
-            padding: 15px 20px !important;
-            font-size: 16px !important;
-            height: 55px !important;
-            transition: all 0.3s ease;
+            border-radius: 16px !important;
+            padding: 0 25px !important;
+            font-size: 20px !important; /* Font Büyütüldü */
+            height: 65px !important; /* Kutu Yüksekliği Arttı */
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
             text-align: center;
-            letter-spacing: 4px;
+            letter-spacing: 6px; /* Karakter aralığı genişledi */
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.3);
         }}
         
+        /* Input Focus (Tıklanınca) Efekti */
         div[data-testid="stTextInput"] input:focus {{
-            border-color: #ff4500 !important;
-            background-color: rgba(255, 69, 0, 0.05) !important;
-            box-shadow: 0 0 0 4px rgba(255, 69, 0, 0.1) !important;
+            border-color: #ff7b00 !important;
+            background-color: rgba(20, 20, 25, 0.9) !important;
+            box-shadow: 0 0 25px rgba(255, 123, 0, 0.25), inset 0 0 0 1px rgba(255, 123, 0, 0.1) !important;
+            transform: scale(1.02); /* Hafif büyüme animasyonu */
+            letter-spacing: 8px; /* Yazarken karakterler biraz daha açılır */
         }}
 
-        /* Giriş Butonu - Tam Ortala ve Genişlet */
+        /* Giriş Butonu */
         div.stButton {{
             width: 100%;
-            padding-top: 10px;
+            padding-top: 20px;
         }}
         
         div.stButton > button {{
             background: linear-gradient(135deg, #ff7b00 0%, #ff4500 100%) !important;
             color: white !important;
             border: none !important;
-            border-radius: 12px !important;
+            border-radius: 16px !important;
             padding: 0px !important;
-            font-size: 16px !important;
-            font-weight: 600 !important;
-            width: 100% !important; /* Buton genişliği */
-            height: 55px !important;
-            box-shadow: 0 10px 25px rgba(255, 69, 0, 0.25) !important;
+            font-size: 17px !important;
+            font-weight: 700 !important;
+            width: 100% !important;
+            height: 60px !important;
+            box-shadow: 0 10px 30px rgba(255, 69, 0, 0.25) !important;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }}
         
         div.stButton > button:hover {{
-            transform: translateY(-2px);
-            box-shadow: 0 15px 35px rgba(255, 69, 0, 0.35) !important;
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(255, 69, 0, 0.4) !important;
             filter: brightness(1.1);
         }}
         
-        /* Butonun focus durumunda (tıklandığında) border çıkmasını engelle */
         div.stButton > button:focus:not(:active) {{
             border-color: transparent !important;
             color: white !important;
@@ -145,12 +151,12 @@ def inject_login_css():
 
         .footer-text {{ 
             text-align: center; 
-            margin-top: 40px; 
+            margin-top: 45px; 
             font-size: 11px; 
-            color: rgba(255,255,255,0.2); 
-            font-weight: 500;
+            color: rgba(255,255,255,0.25); 
+            font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 1.5px;
+            letter-spacing: 2px;
         }}
         </style>
         """, unsafe_allow_html=True
