@@ -111,11 +111,10 @@ def inject_login_css():
             box-shadow: 0 0 0 4px rgba(255, 69, 0, 0.1) !important;
         }}
 
-        /* Giriş Butonu - Tam Ortala */
+        /* Giriş Butonu - Tam Ortala ve Genişlet */
         div.stButton {{
-            display: flex;
-            justify-content: center;
             width: 100%;
+            padding-top: 10px;
         }}
         
         div.stButton > button {{
@@ -128,7 +127,6 @@ def inject_login_css():
             font-weight: 600 !important;
             width: 100% !important; /* Buton genişliği */
             height: 55px !important;
-            margin-top: 15px !important;
             box-shadow: 0 10px 25px rgba(255, 69, 0, 0.25) !important;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
         }}
@@ -137,6 +135,12 @@ def inject_login_css():
             transform: translateY(-2px);
             box-shadow: 0 15px 35px rgba(255, 69, 0, 0.35) !important;
             filter: brightness(1.1);
+        }}
+        
+        /* Butonun focus durumunda (tıklandığında) border çıkmasını engelle */
+        div.stButton > button:focus:not(:active) {{
+            border-color: transparent !important;
+            color: white !important;
         }}
 
         .footer-text {{ 
@@ -175,8 +179,8 @@ def login_screen():
         # Form Alanı
         password = st.text_input("Şifre", type="password", placeholder="••••••••", label_visibility="collapsed")
 
-        # Buton
-        if st.button("GÜVENLİ GİRİŞ YAP"):
+        # Buton - use_container_width=True ile tam genişlik sağlandı
+        if st.button("GÜVENLİ GİRİŞ YAP", use_container_width=True):
             if password in PASSWORDS:
                 firm_name = PASSWORDS[password]
                 # 1. Session state'i güncelle
