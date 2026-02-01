@@ -17,7 +17,7 @@ VALID_USERS = {
 }
 
 LOGIN_BG_URL = "https://res.cloudinary.com/dkdgj03sl/image/upload/v1769852261/c66a13ab-7751-4ebd-9ad5-6a2f907cb0da_1_bc0j6g.jpg"
-LOGO_URL = "https://res.cloudinary.com/dkdgj03sl/image/upload/v1769850715/Black_and_Red_Car_Animated_Logo-8_ebzsvo.png"
+LOGO_URL = "https://res.cloudinary.com/dkdgj03sl/image/upload/v1769924744/betterway_logo_arkaplan_xffybj.png"
 
 # --- LOGIN CSS ---
 def inject_login_css():
