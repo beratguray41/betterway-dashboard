@@ -27,7 +27,7 @@ PASSWORDS = {
 }
 
 LOGIN_BG_URL = "https://res.cloudinary.com/dkdgj03sl/image/upload/v1769852261/c66a13ab-7751-4ebd-9ad5-6a2f907cb0da_1_bc0j6g.jpg"
-LOGO_URL = "https://res.cloudinary.com/dkdgj03sl/image/upload/v1769924744/betterway_logo_arkaplan_xffybj.png"
+LOGO_URL = "https://res.cloudinary.com/dkdgj03sl/image/upload/v1769926229/betterway_logo_arkaplan_2_jpdrgg.png"
 
 def inject_login_css():
     st.markdown(
