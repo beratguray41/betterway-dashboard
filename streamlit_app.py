@@ -89,7 +89,7 @@ def inject_login_css():
             font-size: 16px !important;
             height: 60px !important;
             transition: all 0.3s ease;
-            text-align: left !important; /* Kaymayı önlemek için sola hizalandı */
+            text-align: left !important;
             width: 100% !important;
         }}
         
@@ -111,7 +111,7 @@ def inject_login_css():
             box-shadow: 0 0 20px rgba(255, 123, 0, 0.2) !important;
         }}
 
-        /* Giriş Butonu - Input ile Eşit Genişlik */
+        /* Giriş Butonu - Multiline (2 Paragraf) Tasarımı */
         div.stButton {{
             width: 100% !important;
         }}
@@ -124,12 +124,17 @@ def inject_login_css():
             font-size: 16px !important;
             font-weight: 700 !important;
             width: 100% !important;
-            height: 60px !important;
+            height: 85px !important; /* İki satır için yükseklik artırıldı */
             margin-top: 15px !important;
             box-shadow: 0 10px 20px rgba(255, 69, 0, 0.25) !important;
             transition: all 0.3s ease !important;
             text-transform: uppercase;
             letter-spacing: 1px;
+            white-space: pre-wrap !important; /* Satır atlamayı etkinleştirir */
+            line-height: 1.3 !important; /* Satır aralığı */
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
         }}
         
         div.stButton > button:hover {{
@@ -168,8 +173,8 @@ def login_screen():
         # Şifre kutusu
         password = st.text_input("Şifre", type="password", placeholder="Erişim Şifresi", label_visibility="collapsed")
 
-        # Giriş butonu
-        if st.button("SİSTEME GİRİŞ YAP"):
+        # Giriş butonu - Metin iki satıra bölündü
+        if st.button("SİSTEME GİRİŞ\nYAP"):
             if password in PASSWORDS:
                 st.session_state.auth = True
                 st.session_state.firm = PASSWORDS[password]
