@@ -1,15 +1,25 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-import plotly.graph_objects as go
+import time
+import extra_streamlit_components as stx # pip install extra-streamlit-components
 
 # =========================================================
-# 1) SAYFA AYARLARI (En başta olmalı)
+# 1) SAYFA AYARLARI
 # =========================================================
 st.set_page_config(page_title="BetterWay Akademi | Pro Dashboard", layout="wide", page_icon="🏎️")
 
 # =========================================================
-# 2) AUTH & LOGIN ALTYAPISI (PREMIUM)
+# 2) ÇEREZ (COOKIE) YÖNETİCİSİ KURULUMU
+# =========================================================
+# Bu kısım tarayıcıda oturumu saklamak için kritiktir.
+def get_manager():
+    return stx.CookieManager()
+
+cookie_manager = get_manager()
+
+# =========================================================
+# 3) AUTH & LOGIN ALTYAPISI (PREMIUM)
 # =========================================================
 PASSWORDS = {
     "betterway2026": "BetterWay Akademi",
@@ -36,90 +46,107 @@ def inject_login_css():
 
         /* Login Kartı - Ultra Glassmorphism */
         [data-testid="stVerticalBlock"] > div:has(.login-card) {{
-            background: rgba(255, 255, 255, 0.04);
+            background: rgba(20, 20, 25, 0.6);
             backdrop-filter: blur(25px);
             -webkit-backdrop-filter: blur(25px);
-            padding: 50px 40px !important;
-            border-radius: 30px !important;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            max-width: 420px;
+            padding: 60px 40px !important;
+            border-radius: 24px !important;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            max-width: 450px;
             margin: auto;
-            margin-top: 12vh;
+            margin-top: 10vh;
         }}
         
         div[data-testid="stElementContainer"]:has(.login-card) {{ display: none !important; }}
         
-        .logo-container {{ text-align: center; margin-bottom: 35px; }}
-        .logo-container img {{ width: 180px; filter: drop-shadow(0 0 15px rgba(255,255,255,0.2)); }}
+        .logo-container {{ text-align: center; margin-bottom: 30px; }}
+        .logo-container img {{ width: 200px; filter: drop-shadow(0 0 20px rgba(255,255,255,0.1)); }}
 
         .login-header {{
             color: white;
             text-align: center;
-            font-size: 22px;
+            font-size: 26px;
             font-weight: 700;
-            margin-bottom: 10px;
+            margin-bottom: 20px;
             letter-spacing: -0.5px;
         }}
         
-        .login-subtitle {{
+        /* İki Paragraflı Açıklama Tasarımı */
+        .login-desc-1 {{
+            color: #cbd5e1;
+            text-align: center;
+            font-size: 15px;
+            line-height: 1.5;
+            margin-bottom: 10px;
+            font-weight: 500;
+        }}
+        
+        .login-desc-2 {{
             color: #94a3b8;
             text-align: center;
-            font-size: 14px;
-            margin-bottom: 30px;
+            font-size: 13px;
+            margin-bottom: 35px;
+            font-weight: 400;
         }}
 
         /* Şifre Input Tasarımı */
         div[data-testid="stTextInput"] label {{ display: none !important; }}
         div[data-testid="stTextInput"] input {{
-            background-color: rgba(0, 0, 0, 0.3) !important;
-            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            background-color: rgba(0, 0, 0, 0.4) !important;
+            border: 1px solid rgba(255, 255, 255, 0.15) !important;
             color: white !important;
-            border-radius: 15px !important;
+            border-radius: 12px !important;
             padding: 15px 20px !important;
             font-size: 16px !important;
             height: 55px !important;
             transition: all 0.3s ease;
             text-align: center;
-            letter-spacing: 3px;
+            letter-spacing: 4px;
         }}
         
         div[data-testid="stTextInput"] input:focus {{
-            border-color: #ff7b00 !important;
-            background-color: rgba(255, 123, 0, 0.05) !important;
-            box-shadow: 0 0 20px rgba(255, 123, 0, 0.2) !important;
+            border-color: #ff4500 !important;
+            background-color: rgba(255, 69, 0, 0.05) !important;
+            box-shadow: 0 0 0 4px rgba(255, 69, 0, 0.1) !important;
         }}
 
-        /* Giriş Butonu */
+        /* Giriş Butonu - Tam Ortala */
+        div.stButton {{
+            display: flex;
+            justify-content: center;
+            width: 100%;
+        }}
+        
         div.stButton > button {{
             background: linear-gradient(135deg, #ff7b00 0%, #ff4500 100%) !important;
             color: white !important;
             border: none !important;
-            border-radius: 15px !important;
+            border-radius: 12px !important;
             padding: 0px !important;
             font-size: 16px !important;
-            font-weight: 700 !important;
-            width: 100% !important;
+            font-weight: 600 !important;
+            width: 100% !important; /* Buton genişliği */
             height: 55px !important;
-            margin-top: 20px !important;
-            box-shadow: 0 10px 20px rgba(255, 69, 0, 0.3) !important;
+            margin-top: 15px !important;
+            box-shadow: 0 10px 25px rgba(255, 69, 0, 0.25) !important;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
         }}
         
         div.stButton > button:hover {{
-            transform: translateY(-3px);
-            box-shadow: 0 15px 30px rgba(255, 69, 0, 0.4) !important;
+            transform: translateY(-2px);
+            box-shadow: 0 15px 35px rgba(255, 69, 0, 0.35) !important;
             filter: brightness(1.1);
         }}
 
         .footer-text {{ 
             text-align: center; 
-            margin-top: 35px; 
+            margin-top: 40px; 
             font-size: 11px; 
-            color: rgba(255,255,255,0.3); 
+            color: rgba(255,255,255,0.2); 
             font-weight: 500;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 1.5px;
         }}
         </style>
         """, unsafe_allow_html=True
@@ -130,33 +157,60 @@ def login_screen():
     
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
+        # Logo ve Header
         st.markdown('<div class="login-card"></div>', unsafe_allow_html=True)
         st.markdown(f'<div class="logo-container"><img src="{LOGO_URL}"></div>', unsafe_allow_html=True)
-        st.markdown('<div class="login-header">Sistem Erişimi</div>', unsafe_allow_html=True)
-        st.markdown('<div class="login-subtitle">Lütfen size özel erişim şifresini giriniz.</div>', unsafe_allow_html=True)
+        st.markdown('<div class="login-header">Sisteme Giriş</div>', unsafe_allow_html=True)
+        
+        # İki Paragraf Açıklama
+        st.markdown("""
+            <div class="login-desc-1">
+                BetterWay Akademi yönetim paneline erişmek için lütfen yetkili şifrenizi giriniz.
+            </div>
+            <div class="login-desc-2">
+                Oturumunuz bu cihazda güvenli bir şekilde saklanacaktır.
+            </div>
+        """, unsafe_allow_html=True)
 
+        # Form Alanı
         password = st.text_input("Şifre", type="password", placeholder="••••••••", label_visibility="collapsed")
 
-        if st.button("SİSTEME GİRİŞ YAP"):
+        # Buton
+        if st.button("GÜVENLİ GİRİŞ YAP"):
             if password in PASSWORDS:
+                firm_name = PASSWORDS[password]
+                # 1. Session state'i güncelle
                 st.session_state.auth = True
-                st.session_state.firm = PASSWORDS[password]
+                st.session_state.firm = firm_name
+                # 2. Cookie'ye yaz (30 gün geçerli)
+                cookie_manager.set('betterway_auth_token', password, key="set_auth_token", expires_at=None) 
+                st.success("Giriş başarılı, yönlendiriliyorsunuz...")
+                time.sleep(1) # Cookie'nin yazılması için kısa bekleme
                 st.rerun()
             else:
-                st.error("Girdiğiniz şifre hatalı veya süresi dolmuş!")
+                st.error("Hatalı şifre!")
 
         st.markdown('<div class="footer-text">BetterWay Intelligence Secure Access © 2026</div>', unsafe_allow_html=True)
 
-# --- AUTH KONTROL ---
+# --- AUTH & COOKIE KONTROLÜ ---
+
+# 1. Önce Session State'i kontrol et (Zaten açıksa devam et)
 if "auth" not in st.session_state:
     st.session_state.auth = False
 
+# 2. Session kapalıysa, Cookie var mı diye bak
 if not st.session_state.auth:
-    login_screen()
-    st.stop()
+    cookie_val = cookie_manager.get('betterway_auth_token')
+    if cookie_val and cookie_val in PASSWORDS:
+        st.session_state.auth = True
+        st.session_state.firm = PASSWORDS[cookie_val]
+    else:
+        # Cookie yoksa veya geçersizse Login ekranını göster ve durdur
+        login_screen()
+        st.stop()
 
 # =========================================================
-# 3) DASHBOARD (ANA İÇERİK)
+# 3) DASHBOARD (ANA İÇERİK - GİRİŞ YAPILINCA BURASI ÇALIŞIR)
 # =========================================================
 
 # --- PREMIUM MODERN CSS (SaaS Style) ---
@@ -319,11 +373,13 @@ with st.sidebar:
 
     st.markdown("<div style='margin-top: 40px;'></div>", unsafe_allow_html=True)
     if st.button("🚪 Güvenli Çıkış", use_container_width=True):
+        # ÇIKIŞ YAPILDIĞINDA COOKIE SİLİNİR
+        cookie_manager.delete('betterway_auth_token')
         st.session_state.auth = False
         st.rerun()
 
     st.markdown("---")
-    st.caption("BetterWay Intelligence v6.0")
+    st.caption("BetterWay Intelligence v6.1")
 
 # --- DURUM 1: SÜRÜCÜ SORGULAMA ---
 if menu == "🔍 Sürücü Sorgula" and secilen_surucu != "Seçiniz...":
