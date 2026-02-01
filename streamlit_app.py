@@ -26,7 +26,7 @@ def inject_login_css():
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
 
         .stApp {{
-            background: linear-gradient(rgba(10, 10, 15, 0.7), rgba(10, 10, 15, 0.9)), url('{LOGIN_BG_URL}');
+            background: linear-gradient(rgba(10, 10, 15, 0.75), rgba(10, 10, 15, 0.95)), url('{LOGIN_BG_URL}');
             background-size: cover;
             background-position: center;
             font-family: 'Plus Jakarta Sans', sans-serif;
@@ -34,18 +34,18 @@ def inject_login_css():
         
         header, footer, [data-testid="stSidebar"] {{ display: none !important; }}
 
-        /* Login Kartı */
+        /* Login Kartı - Genişlik Sabitlendi */
         [data-testid="stVerticalBlock"] > div:has(.login-card) {{
-            background: rgba(255, 255, 255, 0.04);
-            backdrop-filter: blur(25px);
-            -webkit-backdrop-filter: blur(25px);
-            padding: 60px 50px !important;
-            border-radius: 35px !important;
-            box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.6);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            max-width: 480px;
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            padding: 50px 40px !important;
+            border-radius: 30px !important;
+            box-shadow: 0 40px 80px -15px rgba(0, 0, 0, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            width: 420px !important; /* Kart genişliği sabitlendi */
             margin: auto;
-            margin-top: 10vh;
+            margin-top: 12vh;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -53,93 +53,102 @@ def inject_login_css():
         
         div[data-testid="stElementContainer"]:has(.login-card) {{ display: none !important; }}
         
-        .logo-container {{ text-align: center; margin-bottom: 40px; }}
-        .logo-container img {{ width: 220px; filter: drop-shadow(0 0 20px rgba(255,255,255,0.2)); }}
+        .logo-container {{ text-align: center; margin-bottom: 30px; width: 100%; }}
+        .logo-container img {{ width: 200px; filter: drop-shadow(0 0 15px rgba(255,255,255,0.15)); }}
 
         .login-header {{
             color: white;
             text-align: center;
-            font-size: 26px;
+            font-size: 24px;
             font-weight: 700;
-            margin-bottom: 12px;
-            letter-spacing: -0.5px;
+            margin-bottom: 8px;
+            width: 100%;
         }}
         
         .login-subtitle {{
-            color: #94a3b8;
+            color: #64748b;
             text-align: center;
-            font-size: 15px;
-            margin-bottom: 40px;
+            font-size: 14px;
+            margin-bottom: 35px;
+            width: 100%;
         }}
 
-        /* Şifre Input ve Buton Konteynırı */
-        div[data-testid="stTextInput"], div.stButton {{
-            width: 100% !important;
-        }}
-
-        /* Şifre Input Tasarımı - Sabitlendi */
-        div[data-testid="stTextInput"] label {{ display: none !important; }}
-        div[data-testid="stTextInput"] input {{
-            background-color: rgba(0, 0, 0, 0.35) !important;
-            border: 1px solid rgba(255, 255, 255, 0.15) !important;
-            color: white !important;
-            border-radius: 18px !important;
-            padding: 0 50px 0 25px !important; /* Göz simgesi için sağdan boşluk */
-            font-size: 18px !important;
-            height: 65px !important; /* Standart yükseklik */
-            transition: all 0.3s ease;
-            text-align: left !important; /* Kayma sorununu önlemek için sola hizalandı */
-            letter-spacing: 2px;
+        /* Şifre Alanı Tasarımı */
+        div[data-testid="stTextInput"] {{
             width: 100% !important;
         }}
         
-        /* Şifre Göz Simgesi (Eye Icon) Hizalaması */
+        div[data-testid="stTextInput"] label {{ display: none !important; }}
+        
+        div[data-testid="stTextInput"] input {{
+            background-color: rgba(0, 0, 0, 0.4) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            color: white !important;
+            border-radius: 15px !important;
+            padding: 0 55px 0 20px !important;
+            font-size: 16px !important;
+            height: 60px !important;
+            transition: all 0.3s ease;
+            text-align: left !important; /* Kaymayı önlemek için sola hizalandı */
+            width: 100% !important;
+        }}
+        
+        /* Göz (Eye) İkonu Sabitleme */
         div[data-testid="stTextInput"] button {{
+            right: 15px !important;
             top: 50% !important;
             transform: translateY(-50%) !important;
-            color: rgba(255,255,255,0.6) !important;
-            margin-right: 10px !important;
+            height: 30px !important;
+            display: flex !important;
+            align-items: center !important;
             background: transparent !important;
-        }}
-        
-        div[data-testid="stTextInput"] input:focus {{
-            border-color: #ff7b00 !important;
-            background-color: rgba(255, 123, 0, 0.08) !important;
-            box-shadow: 0 0 25px rgba(255, 123, 0, 0.25) !important;
+            color: rgba(255,255,255,0.4) !important;
         }}
 
-        /* Giriş Butonu - Input ile tam uyumlu genişlik ve yükseklik */
+        div[data-testid="stTextInput"] input:focus {{
+            border-color: #ff7b00 !important;
+            background-color: rgba(255, 123, 0, 0.05) !important;
+            box-shadow: 0 0 20px rgba(255, 123, 0, 0.2) !important;
+        }}
+
+        /* Giriş Butonu - Input ile Eşit Genişlik */
+        div.stButton {{
+            width: 100% !important;
+        }}
+        
         div.stButton > button {{
             background: linear-gradient(135deg, #ff7b00 0%, #ff4500 100%) !important;
             color: white !important;
             border: none !important;
-            border-radius: 18px !important;
-            padding: 0px !important;
-            font-size: 18px !important;
-            font-weight: 800 !important;
+            border-radius: 15px !important;
+            font-size: 16px !important;
+            font-weight: 700 !important;
             width: 100% !important;
-            height: 65px !important;
-            margin-top: 25px !important;
-            box-shadow: 0 12px 24px rgba(255, 69, 0, 0.35) !important;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+            height: 60px !important;
+            margin-top: 15px !important;
+            box-shadow: 0 10px 20px rgba(255, 69, 0, 0.25) !important;
+            transition: all 0.3s ease !important;
             text-transform: uppercase;
             letter-spacing: 1px;
         }}
         
         div.stButton > button:hover {{
-            transform: translateY(-4px) scale(1.02);
-            box-shadow: 0 20px 40px rgba(255, 69, 0, 0.5) !important;
-            filter: brightness(1.15);
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px rgba(255, 69, 0, 0.4) !important;
+            filter: brightness(1.1);
         }}
 
+        /* Alt Bilgi Metni - Genişlik ve Ortalama Ayarı */
         .footer-text {{ 
             text-align: center; 
-            margin-top: 45px; 
-            font-size: 11px; 
-            color: rgba(255,255,255,0.4); 
+            margin-top: 40px; 
+            font-size: 10px; 
+            color: rgba(255,255,255,0.25); 
             font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 2px;
+            letter-spacing: 1.5px;
+            width: 100%;
+            padding: 0 10px;
         }}
         </style>
         """, unsafe_allow_html=True
@@ -148,16 +157,16 @@ def inject_login_css():
 def login_screen():
     inject_login_css()
     
-    # Merkezi hizalama için ana kolon yapısı
-    _, col2, _ = st.columns([1, 2, 1])
-    with col2:
+    # Sayfayı yatayda tam ortalamak için kolonlar
+    c1, c2, c3 = st.columns([1, 1.5, 1])
+    with c2:
         st.markdown('<div class="login-card"></div>', unsafe_allow_html=True)
         st.markdown(f'<div class="logo-container"><img src="{LOGO_URL}"></div>', unsafe_allow_html=True)
         st.markdown('<div class="login-header">Sistem Erişimi</div>', unsafe_allow_html=True)
-        st.markdown('<div class="login-subtitle">Lütfen size özel erişim şifresini giriniz.</div>', unsafe_allow_html=True)
+        st.markdown('<div class="login-subtitle">BetterWay Intelligence Panel</div>', unsafe_allow_html=True)
 
         # Şifre kutusu
-        password = st.text_input("Şifre", type="password", placeholder="Şifrenizi girin", label_visibility="collapsed")
+        password = st.text_input("Şifre", type="password", placeholder="Erişim Şifresi", label_visibility="collapsed")
 
         # Giriş butonu
         if st.button("SİSTEME GİRİŞ YAP"):
@@ -166,7 +175,7 @@ def login_screen():
                 st.session_state.firm = PASSWORDS[password]
                 st.rerun()
             else:
-                st.error("Girdiğiniz şifre hatalı veya süresi dolmuş!")
+                st.error("Hatalı veya geçersiz şifre!")
 
         st.markdown('<div class="footer-text">BetterWay Intelligence Secure Access © 2026</div>', unsafe_allow_html=True)
 
@@ -232,13 +241,6 @@ st.markdown("""
         position: relative;
         overflow: hidden;
     }
-    .hero-profile::after {
-        content: "";
-        position: absolute; top: -50px; right: -50px;
-        width: 150px; height: 150px;
-        background: rgba(230, 57, 70, 0.1);
-        border-radius: 50%; blur: 60px;
-    }
 
     .score-ring {
         background: transparent;
@@ -284,12 +286,6 @@ st.markdown("""
         justify-content: center;
         gap: 8px;
         border: none;
-    }
-    .download-btn:hover {
-        background: #ff4d4d;
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(230, 57, 70, 0.5);
-        color: white !important;
     }
     
     hr { border: 0; border-top: 1px solid #2d3139; margin: 30px 0; }
