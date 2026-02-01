@@ -13,7 +13,7 @@ st.set_page_config(page_title="BetterWay Akademi | Pro Dashboard", layout="wide"
 # =========================================================
 VALID_USERS = {
     "admin": {"password": "betterway2026", "firm": "BetterWay Akademi"},
-    "demo@betterway.com": {"password": "betterway123", "firm": "Demo Firma"},
+ 
 }
 
 LOGIN_BG_URL = "https://res.cloudinary.com/dkdgj03sl/image/upload/v1769852261/c66a13ab-7751-4ebd-9ad5-6a2f907cb0da_1_bc0j6g.jpg"
