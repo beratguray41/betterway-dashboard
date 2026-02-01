@@ -458,37 +458,33 @@ else:
     with col_l:
         st.markdown("<h3 style='font-size:20px; margin-bottom:20px;'>⚠️ En Sık Rastlanan Uygunsuzluklar</h3>", unsafe_allow_html=True)
         if not df_hata.empty:
-            # Gelişmiş Premium Grafik Tasarımı
-            df_h_plot = df_hata.sort_values(by=df_hata.columns[1], ascending=True).tail(8)
+            # Gelişmiş Premium Donut Chart Tasarımı
+            df_h_plot = df_hata.sort_values(by=df_hata.columns[1], ascending=False).head(8)
             cat_col = df_hata.columns[0]
             val_col = df_hata.columns[1]
             
-            fig = px.bar(
+            fig = px.pie(
                 df_h_plot, 
-                x=val_col, 
-                y=cat_col, 
-                orientation='h',
-                text=val_col, # Barların ucuna değeri yaz
-                color=val_col, # Değere göre renk değişimi (Gradyan)
-                color_continuous_scale=['#334155', '#e63946'] # Koyu griden kırmızıya geçiş
+                values=val_col, 
+                names=cat_col,
+                hole=0.5, # Donut görünümü
+                color_discrete_sequence=px.colors.sequential.RdBu_r # Kırmızı ton ağırlıklı
             )
             
             fig.update_layout(
                 paper_bgcolor='rgba(0,0,0,0)', 
                 plot_bgcolor='rgba(0,0,0,0)',
-                margin=dict(t=10, b=10, l=0, r=0),
+                margin=dict(t=20, b=20, l=0, r=0),
                 height=350,
-                xaxis=dict(showgrid=False, showticklabels=False, title=None), # X ekseni temizliği
-                yaxis=dict(showgrid=False, color='#cbd5e1', title=None, tickfont=dict(size=13, family="Plus Jakarta Sans")), # Y ekseni font ayarı
-                showlegend=False,
-                coloraxis_showscale=False # Renk barını gizle
+                showlegend=False, # Legend kapalı, detaylar hover'da
+                annotations=[dict(text='Hatalar', x=0.5, y=0.5, font_size=18, showarrow=False, font_color='#94a3b8')]
             )
             
             fig.update_traces(
-                textposition='outside', # Yazıyı barın dışına koy
-                marker_line_width=0, # Bar çerçevesini kaldır
-                textfont=dict(color='white', size=12, family="Plus Jakarta Sans"), # Değer yazısı fontu
-                width=0.7 # Bar kalınlığı
+                textposition='inside', 
+                textinfo='percent', # Dilim içinde sadece oran
+                hovertemplate = "<b>%{label}</b><br>Hata Sayısı: %{value}<br>Oran: %{percent}", # Hover detayları
+                marker=dict(line=dict(color='#0f1115', width=3)) # Dilimler arası modern boşluk
             )
             
             st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
