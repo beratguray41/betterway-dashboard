@@ -420,6 +420,15 @@ st.markdown("""
         color: white !important;
     }
     
+    /* Arşiv Başlık Stili */
+    .archive-header {
+        font-size: 12px;
+        color: #94a3b8;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    
     hr { border: 0; border-top: 1px solid #2d3139; margin: 30px 0; }
     </style>
     """, unsafe_allow_html=True)
@@ -582,7 +591,39 @@ else:
     
     if not df_genel.empty:
         df_genel['DT'] = pd.to_datetime(df_genel['EĞİTİM TARİHİ'], dayfirst=True, errors='coerce')
-        for _, row in df_genel.sort_values(by='DT', ascending=False).iterrows():
+        
+        # --- FİLTRELEME ALANI ---
+        f1, f2 = st.columns(2)
+        with f1:
+            sort_order = st.selectbox("📅 Sıralama", ["Yeniden Eskiye", "Eskiden Yeniye"])
+        with f2:
+            locs = ["Tümü"] + sorted(df_genel['EĞİTİM YERİ'].dropna().unique().tolist())
+            selected_loc = st.selectbox("📍 Lokasyon Filtresi", locs)
+        
+        # Filtreleme Mantığı
+        df_filtered = df_genel.copy()
+        if selected_loc != "Tümü":
+            df_filtered = df_filtered[df_filtered['EĞİTİM YERİ'] == selected_loc]
+        
+        if sort_order == "Yeniden Eskiye":
+            df_filtered = df_filtered.sort_values(by='DT', ascending=False)
+        else:
+            df_filtered = df_filtered.sort_values(by='DT', ascending=True)
+
+        st.markdown("<br>", unsafe_allow_html=True)
+        
+        # --- BAŞLIK SATIRI (HEADER) ---
+        h = st.columns([1, 1, 2, 1, 1, 0.8])
+        h[0].markdown('<div class="archive-header">TARİH</div>', unsafe_allow_html=True)
+        h[1].markdown('<div class="archive-header">LOKASYON</div>', unsafe_allow_html=True)
+        h[2].markdown('<div class="archive-header">EĞİTİM TÜRÜ</div>', unsafe_allow_html=True)
+        h[3].markdown('<div class="archive-header">KATILIMCI</div>', unsafe_allow_html=True)
+        h[4].markdown('<div class="archive-header">İŞE ALIM</div>', unsafe_allow_html=True)
+        h[5].markdown('<div class="archive-header">BELGE</div>', unsafe_allow_html=True)
+        st.markdown("<div style='border-bottom: 2px solid #2d3139; margin-bottom: 15px; margin-top:5px;'></div>", unsafe_allow_html=True)
+
+        # --- LİSTELEME ---
+        for _, row in df_filtered.iterrows():
             with st.container():
                 r = st.columns([1, 1, 2, 1, 1, 0.8])
                 r[0].write(f"<span style='font-size:13px;'>{row.get('EĞİTİM TARİHİ','-')}</span>", unsafe_allow_html=True)
