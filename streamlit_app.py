@@ -17,7 +17,7 @@ PASSWORDS = {
 }
 
 LOGIN_BG_URL = "https://res.cloudinary.com/dkdgj03sl/image/upload/v1769852261/c66a13ab-7751-4ebd-9ad5-6a2f907cb0da_1_bc0j6g.jpg"
-LOGO_URL = "https://res.cloudinary.com/dkdgj03sl/image/upload/v1769926229/betterway_logo_arkaplan_2_jpdrgg.png"
+LOGO_URL = "https://res.cloudinary.com/dkdgj03sl/image/upload/v1769924744/betterway_logo_arkaplan_xffybj.png"
 
 def inject_login_css():
     st.markdown(
@@ -34,92 +34,97 @@ def inject_login_css():
         
         header, footer, [data-testid="stSidebar"] {{ display: none !important; }}
 
-        /* Login Kartı - Ultra Glassmorphism */
+        /* Login Kartı - Geliştirilmiş Tasarım */
         [data-testid="stVerticalBlock"] > div:has(.login-card) {{
             background: rgba(255, 255, 255, 0.04);
             backdrop-filter: blur(25px);
             -webkit-backdrop-filter: blur(25px);
-            padding: 50px 40px !important;
-            border-radius: 30px !important;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            padding: 60px 50px !important;
+            border-radius: 35px !important;
+            box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.6);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            max-width: 420px;
+            max-width: 480px; /* Biraz daha genişletildi */
             margin: auto;
-            margin-top: 12vh;
+            margin-top: 10vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }}
         
         div[data-testid="stElementContainer"]:has(.login-card) {{ display: none !important; }}
         
-        .logo-container {{ text-align: center; margin-bottom: 35px; }}
-        .logo-container img {{ width: 180px; filter: drop-shadow(0 0 15px rgba(255,255,255,0.2)); }}
+        .logo-container {{ text-align: center; margin-bottom: 40px; }}
+        .logo-container img {{ width: 220px; filter: drop-shadow(0 0 20px rgba(255,255,255,0.2)); }}
 
         .login-header {{
             color: white;
             text-align: center;
-            font-size: 22px;
+            font-size: 26px;
             font-weight: 700;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
             letter-spacing: -0.5px;
         }}
         
         .login-subtitle {{
             color: #94a3b8;
             text-align: center;
-            font-size: 14px;
-            margin-bottom: 30px;
+            font-size: 15px;
+            margin-bottom: 40px;
         }}
 
-        /* Şifre Input Tasarımı */
+        /* Şifre Input Tasarımı - Daha Yüksek ve Geniş */
         div[data-testid="stTextInput"] label {{ display: none !important; }}
         div[data-testid="stTextInput"] input {{
-            background-color: rgba(0, 0, 0, 0.3) !important;
-            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            background-color: rgba(0, 0, 0, 0.35) !important;
+            border: 1px solid rgba(255, 255, 255, 0.15) !important;
             color: white !important;
-            border-radius: 15px !important;
-            padding: 15px 20px !important;
-            font-size: 16px !important;
-            height: 55px !important;
+            border-radius: 18px !important;
+            padding: 20px !important;
+            font-size: 18px !important;
+            height: 70px !important; /* Daha yüksek yapıldı */
             transition: all 0.3s ease;
             text-align: center;
-            letter-spacing: 3px;
+            letter-spacing: 5px;
         }}
         
         div[data-testid="stTextInput"] input:focus {{
             border-color: #ff7b00 !important;
-            background-color: rgba(255, 123, 0, 0.05) !important;
-            box-shadow: 0 0 20px rgba(255, 123, 0, 0.2) !important;
+            background-color: rgba(255, 123, 0, 0.08) !important;
+            box-shadow: 0 0 25px rgba(255, 123, 0, 0.25) !important;
         }}
 
-        /* Giriş Butonu */
+        /* Giriş Butonu - Daha Yüksek ve Geniş */
         div.stButton > button {{
             background: linear-gradient(135deg, #ff7b00 0%, #ff4500 100%) !important;
             color: white !important;
             border: none !important;
-            border-radius: 15px !important;
+            border-radius: 18px !important;
             padding: 0px !important;
-            font-size: 16px !important;
-            font-weight: 700 !important;
+            font-size: 18px !important;
+            font-weight: 800 !important;
             width: 100% !important;
-            height: 55px !important;
-            margin-top: 20px !important;
-            box-shadow: 0 10px 20px rgba(255, 69, 0, 0.3) !important;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            height: 70px !important; /* Daha yüksek yapıldı */
+            margin-top: 25px !important;
+            box-shadow: 0 12px 24px rgba(255, 69, 0, 0.35) !important;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }}
         
         div.stButton > button:hover {{
-            transform: translateY(-3px);
-            box-shadow: 0 15px 30px rgba(255, 69, 0, 0.4) !important;
-            filter: brightness(1.1);
+            transform: translateY(-4px) scale(1.01);
+            box-shadow: 0 20px 40px rgba(255, 69, 0, 0.5) !important;
+            filter: brightness(1.15);
         }}
 
         .footer-text {{ 
             text-align: center; 
-            margin-top: 35px; 
+            margin-top: 45px; 
             font-size: 11px; 
-            color: rgba(255,255,255,0.3); 
-            font-weight: 500;
+            color: rgba(255,255,255,0.4); 
+            font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 2px;
         }}
         </style>
         """, unsafe_allow_html=True
@@ -128,7 +133,8 @@ def inject_login_css():
 def login_screen():
     inject_login_css()
     
-    col1, col2, col3 = st.columns([1, 2, 1])
+    # Sayfayı yatayda tam ortalamak için kolon yapısı
+    _, col2, _ = st.columns([1, 2, 1])
     with col2:
         st.markdown('<div class="login-card"></div>', unsafe_allow_html=True)
         st.markdown(f'<div class="logo-container"><img src="{LOGO_URL}"></div>', unsafe_allow_html=True)
@@ -176,7 +182,7 @@ st.markdown("""
     [data-testid="stSidebar"] {
         background-color: #161920;
         border-right: 1px solid #2d3139;
-        display: flex !important; /* Sidebar'ı login'den sonra geri getir */
+        display: flex !important;
     }
     
     header { display: block !important; }
@@ -296,7 +302,6 @@ df_hata = load_data(HATA_OZETI_GID)
 with st.sidebar:
     st.image("https://res.cloudinary.com/dkdgj03sl/image/upload/v1769850715/Black_and_Red_Car_Animated_Logo-8_ebzsvo.png", width=180)
     
-    # Aktif Firma Bilgisi
     st.markdown(f"""
         <div style="background:rgba(255,255,255,0.05); padding:15px; border-radius:12px; margin-bottom:20px; border:1px solid rgba(255,255,255,0.1);">
             <div style="color:#94a3b8; font-size:10px; font-weight:700; letter-spacing:1px;">AKTİF KURUM</div>
