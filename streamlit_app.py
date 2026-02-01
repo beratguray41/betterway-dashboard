@@ -44,16 +44,16 @@ def inject_login_css():
         
         header, footer, [data-testid="stSidebar"] {{ display: none !important; }}
 
-        /* Login Kartı - Genişletildi (520px -> 580px) ve Padding Arttırıldı (60px) */
+        /* Login Kartı - Glassmorphism (Şeffaflık Arttırıldı) */
         [data-testid="stVerticalBlock"] > div:has(.login-card) {{
-            background: rgba(20, 20, 25, 0.65);
-            backdrop-filter: blur(30px);
-            -webkit-backdrop-filter: blur(30px);
-            padding: 60px 60px !important; /* Sağ ve Sol boşluk 60px yapıldı */
+            background: rgba(255, 255, 255, 0.05); /* Gri yerine çok hafif beyaz transparan */
+            backdrop-filter: blur(25px); /* Buzlu cam etkisi */
+            -webkit-backdrop-filter: blur(25px);
+            padding: 60px 60px !important;
             border-radius: 24px !important;
-            box-shadow: 0 30px 60px -10px rgba(0, 0, 0, 0.9);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            max-width: 580px; /* Kart genişliği arttırıldı */
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.15); /* Çerçeve biraz daha belirgin */
+            max-width: 580px;
             margin: auto;
             margin-top: 10vh;
         }}
@@ -70,6 +70,7 @@ def inject_login_css():
             font-weight: 700;
             margin-bottom: 20px;
             letter-spacing: -0.5px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
         }}
         
         /* İki Paragraflı Açıklama Tasarımı */
@@ -90,30 +91,37 @@ def inject_login_css():
             font-weight: 400;
         }}
 
-        /* --- PREMIUM PAROLA KUTUSU TASARIMI (Etkileşimli) --- */
+        /* --- PREMIUM PAROLA KUTUSU TASARIMI (GLASS STYLE) --- */
         div[data-testid="stTextInput"] label {{ display: none !important; }}
         
         div[data-testid="stTextInput"] input {{
-            background-color: rgba(15, 15, 20, 0.6) !important;
-            border: 1px solid rgba(255, 255, 255, 0.15) !important;
+            background-color: rgba(255, 255, 255, 0.07) !important; /* TAM GLASS (Şeffaf) */
+            backdrop-filter: blur(10px); /* Kutu arkası bulanık */
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2) !important; /* İnce cam çerçeve */
             color: white !important;
             border-radius: 16px !important;
             padding: 0 25px !important;
-            font-size: 20px !important; /* Font Büyütüldü */
-            height: 65px !important; /* Kutu Yüksekliği Arttı */
+            font-size: 20px !important;
+            height: 65px !important;
             transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
             text-align: center;
-            letter-spacing: 6px; /* Karakter aralığı genişledi */
-            box-shadow: inset 0 2px 10px rgba(0,0,0,0.3);
+            letter-spacing: 6px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }}
         
-        /* Input Focus (Tıklanınca) Efekti - Neon Glow ve Büyüme */
+        /* Input Focus (Tıklanınca) Efekti - Parlayan Cam */
         div[data-testid="stTextInput"] input:focus {{
             border-color: #ff7b00 !important;
-            background-color: rgba(20, 20, 25, 0.9) !important;
-            box-shadow: 0 0 25px rgba(255, 123, 0, 0.25), inset 0 0 0 1px rgba(255, 123, 0, 0.1) !important;
-            transform: scale(1.02); /* Hafif büyüme animasyonu */
-            letter-spacing: 8px; /* Yazarken karakterler biraz daha açılır */
+            background-color: rgba(255, 255, 255, 0.12) !important; /* Tıklanınca biraz daha aydınlık */
+            box-shadow: 0 0 25px rgba(255, 123, 0, 0.3), inset 0 0 0 1px rgba(255, 123, 0, 0.1) !important;
+            transform: scale(1.02);
+            letter-spacing: 8px;
+        }}
+        
+        /* Placeholder rengini ayarla */
+        div[data-testid="stTextInput"] input::placeholder {{
+            color: rgba(255, 255, 255, 0.4);
         }}
 
         /* Giriş Butonu */
@@ -132,7 +140,7 @@ def inject_login_css():
             font-weight: 700 !important;
             width: 100% !important;
             height: 60px !important;
-            box-shadow: 0 10px 30px rgba(255, 69, 0, 0.25) !important;
+            box-shadow: 0 10px 30px rgba(255, 69, 0, 0.3) !important;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
             text-transform: uppercase;
             letter-spacing: 1px;
@@ -140,7 +148,7 @@ def inject_login_css():
         
         div.stButton > button:hover {{
             transform: translateY(-3px);
-            box-shadow: 0 15px 40px rgba(255, 69, 0, 0.4) !important;
+            box-shadow: 0 15px 40px rgba(255, 69, 0, 0.5) !important;
             filter: brightness(1.1);
         }}
         
@@ -153,7 +161,7 @@ def inject_login_css():
             text-align: center; 
             margin-top: 45px; 
             font-size: 11px; 
-            color: rgba(255,255,255,0.25); 
+            color: rgba(255,255,255,0.3); 
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 2px;
