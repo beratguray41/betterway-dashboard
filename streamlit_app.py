@@ -3,22 +3,24 @@ import pandas as pd
 import plotly.express as px
 import time
 import extra_streamlit_components as stx  # pip install extra-streamlit-components
+import re
 import html
+
+# =========================================================
+# 0) SAYFA AYARLARI
+# =========================================================
+st.set_page_config(page_title="BetterWay Akademi | Pro Dashboard", layout="wide", page_icon="🏎️")
 
 # =========================================================
 # FORCE DARK MODE (Login background'ını ezmeden)
 # =========================================================
-st.set_page_config(page_title="BetterWay Akademi | Pro Dashboard", layout="wide", page_icon="🏎️")
-
 st.markdown("""
 <style>
 :root, html, body { color-scheme: dark !important; }
-
 :root{
   --bg:#0f1115; --panel:#161920; --panel2:#1e222d;
   --text:#e2e8f0; --muted:#94a3b8; --border:#2d3139;
 }
-
 /* .stApp background'ını burada ZORLAMIYORUZ (login bg için) */
 
 section[data-testid="stSidebar"]{
@@ -57,60 +59,37 @@ details, summary{
 """, unsafe_allow_html=True)
 
 # =========================================================
-# 0) HELPERS (PERSONEL SAYFASI FIX)
-# =========================================================
-def safe_text(v, default="-"):
-    """HTML kırılmasın diye metni escape eder."""
-    s = "" if v is None else str(v)
-    s = s.strip()
-    if not s or s.lower() == "nan":
-        s = default
-    return html.escape(s)
-
-def safe_multiline(v, default="Kritik bir zayıf yön tespit edilmemiştir."):
-    """Satır sonlarını <br> yapar + escape eder."""
-    s = "" if v is None else str(v)
-    s = s.replace("\r\n", "\n").replace("\r", "\n").strip()
-    if not s or s.lower() == "nan":
-        s = default
-    s = html.escape(s)
-    return s.replace("\n", "<br/>")
-
-def safe_int_like(v, default="0"):
-    s = "" if v is None else str(v).strip()
-    if not s or s.lower() == "nan":
-        return default
-    return html.escape(s)
-
-# =========================================================
-# 0) FİRMA KONFİG (ŞİFRE -> SHEET)
+# 1) FİRMA KONFİG (ŞİFRE -> SHEET + AYARLAR)
 # =========================================================
 FIRMS = {
-    # Karınca (mevcut)
+    # KARINCA
     "Karınca2025.": {
         "name": "KARINCA LOJİSTİK",
         "sheet_id": "1Q-VMr9_wz7Op-tutiYePUhZi3OKmyITMKJmtqQuN1YU",
         "has_ise_alim": True,
+        "gids": {"GENEL": "0", "SURUCU": "395204791", "HATA": "2078081831"},
     },
-    # ACAPET (yeni)
-    "Acapet2025..": {  # <-- ŞİFREYİ BURADAN İSTEDİĞİN GİBİ DEĞİŞTİR
+    # ACAPET
+    "Acapet2025..": {  # <- şifreyi buradan değiştir
         "name": "ACAPET LOJİSTİK",
         "sheet_id": "1K3MBqT2I7I_a_mDhByXX1G1kMVp_VpWXqzyHBiqplLY",
-        "has_ise_alim": False,  # ACAPET'te İŞE ALIM kolonu yok
+        "has_ise_alim": False,  # ACAPET’te İŞE ALIM yok
+        "gids": {"GENEL": "0", "SURUCU": "395204791", "HATA": "2078081831"},
     },
-
+    # DEMO (opsiyonel)
     "betterway123": {
         "name": "Demo Firma",
         "sheet_id": "1Q-VMr9_wz7Op-tutiYePUhZi3OKmyITMKJmtqQuN1YU",
         "has_ise_alim": True,
-    }
+        "gids": {"GENEL": "0", "SURUCU": "395204791", "HATA": "2078081831"},
+    },
 }
 
 LOGIN_BG_URL = "https://res.cloudinary.com/dkdgj03sl/image/upload/v1769852261/c66a13ab-7751-4ebd-9ad5-6a2f907cb0da_1_bc0j6g.jpg"
 LOGO_URL = "https://res.cloudinary.com/dkdgj03sl/image/upload/v1769926229/betterway_logo_arkaplan_2_jpdrgg.png"
 
 # =========================================================
-# 1) ÇEREZ (COOKIE) YÖNETİCİSİ
+# 2) COOKIE MANAGER
 # =========================================================
 def get_manager():
     return stx.CookieManager()
@@ -118,7 +97,30 @@ def get_manager():
 cookie_manager = get_manager()
 
 # =========================================================
-# 2) LOADING (SPLASH)
+# 3) PERSONEL SAYFASI KİRLİ HTML TEMİZLİĞİ (FIX)
+# =========================================================
+_TAG_RE = re.compile(r"<[^>]+>")
+
+def clean_cell(val, default="-"):
+    s = "" if val is None else str(val)
+    s = s.replace("\r\n", "\n").replace("\r", "\n").strip()
+    if not s or s.lower() == "nan":
+        s = default
+    # tag temizle (kart HTML’i hücreye yapıştıysa DOM’u kırmasın)
+    s = _TAG_RE.sub("", s)
+    # whitespace toparla
+    s = re.sub(r"[ \t]+", " ", s).strip()
+    return s
+
+def safe_text(val, default="-"):
+    return html.escape(clean_cell(val, default=default))
+
+def safe_multiline(val, default="Kritik bir zayıf yön tespit edilmemiştir."):
+    s = clean_cell(val, default=default)
+    return html.escape(s).replace("\n", "<br/>")
+
+# =========================================================
+# 4) LOADING (SPLASH)
 # =========================================================
 def show_loading_animation(placeholder):
     loading_css = f"""
@@ -181,7 +183,7 @@ def show_loading_animation(placeholder):
     placeholder.markdown(loading_css, unsafe_allow_html=True)
 
 # =========================================================
-# 3) LOGIN CSS
+# 5) LOGIN CSS + SCREEN
 # =========================================================
 def inject_login_css():
     st.markdown(
@@ -195,6 +197,7 @@ def inject_login_css():
             background-position: center;
             font-family: 'Plus Jakarta Sans', sans-serif;
         }}
+
         header, footer, [data-testid="stSidebar"] {{ display: none !important; }}
 
         [data-testid="stVerticalBlock"] > div:has(.login-card) {{
@@ -209,6 +212,7 @@ def inject_login_css():
             margin: auto;
             margin-top: 10vh;
         }}
+
         div[data-testid="stElementContainer"]:has(.login-card) {{ display: none !important; }}
 
         .logo-container {{ text-align: center; margin-bottom: 30px; }}
@@ -223,6 +227,7 @@ def inject_login_css():
             letter-spacing: -0.5px;
             text-shadow: 0 2px 10px rgba(0,0,0,0.3);
         }}
+
         .login-desc-1 {{
             color: #e2e8f0;
             text-align: center;
@@ -231,6 +236,7 @@ def inject_login_css():
             margin-bottom: 10px;
             font-weight: 500;
         }}
+
         .login-desc-2 {{
             color: #94a3b8;
             text-align: center;
@@ -256,6 +262,7 @@ def inject_login_css():
             letter-spacing: 6px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }}
+
         div[data-testid="stTextInput"] input:focus {{
             border-color: #ff7b00 !important;
             background-color: rgba(255, 255, 255, 0.12) !important;
@@ -263,9 +270,13 @@ def inject_login_css():
             transform: scale(1.02);
             letter-spacing: 8px;
         }}
-        div[data-testid="stTextInput"] input::placeholder {{ color: rgba(255, 255, 255, 0.4); }}
+
+        div[data-testid="stTextInput"] input::placeholder {{
+            color: rgba(255, 255, 255, 0.4);
+        }}
 
         div.stButton {{ width: 100%; padding-top: 20px; }}
+
         div.stButton > button {{
             background: linear-gradient(135deg, #ff7b00 0%, #ff4500 100%) !important;
             color: white !important;
@@ -281,6 +292,7 @@ def inject_login_css():
             text-transform: uppercase;
             letter-spacing: 1px;
         }}
+
         div.stButton > button:hover {{
             transform: translateY(-3px);
             box-shadow: 0 15px 40px rgba(255, 69, 0, 0.5) !important;
@@ -303,6 +315,7 @@ def inject_login_css():
 
 def login_screen():
     inject_login_css()
+
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
         st.markdown('<div class="login-card"></div>', unsafe_allow_html=True)
@@ -322,11 +335,12 @@ def login_screen():
 
         if st.button("GÜVENLİ GİRİŞ YAP", use_container_width=True):
             if password in FIRMS:
-                firm_cfg = FIRMS[password]
+                cfg = FIRMS[password]
                 st.session_state.auth = True
-                st.session_state.firm = firm_cfg["name"]
-                st.session_state.sheet_id = firm_cfg["sheet_id"]
-                st.session_state.has_ise_alim = bool(firm_cfg.get("has_ise_alim", False))
+                st.session_state.firm = cfg["name"]
+                st.session_state.sheet_id = cfg["sheet_id"]
+                st.session_state.has_ise_alim = bool(cfg.get("has_ise_alim", False))
+                st.session_state.gids = cfg.get("gids", {})
                 cookie_manager.set("betterway_auth_token", password, key="set_auth_token", expires_at=None)
                 st.success("Giriş başarılı, yönlendiriliyorsunuz...")
                 time.sleep(0.8)
@@ -337,7 +351,7 @@ def login_screen():
         st.markdown('<div class="footer-text">BetterWay Intelligence Secure Access © 2026</div>', unsafe_allow_html=True)
 
 # =========================================================
-# 4) AUTH & COOKIE
+# 6) AUTH & COOKIE
 # =========================================================
 if "auth" not in st.session_state:
     st.session_state.auth = False
@@ -350,11 +364,12 @@ if not st.session_state.auth:
     cookie_val = cookie_manager.get("betterway_auth_token")
 
     if cookie_val and cookie_val in FIRMS:
-        firm_cfg = FIRMS[cookie_val]
+        cfg = FIRMS[cookie_val]
         st.session_state.auth = True
-        st.session_state.firm = firm_cfg["name"]
-        st.session_state.sheet_id = firm_cfg["sheet_id"]
-        st.session_state.has_ise_alim = bool(firm_cfg.get("has_ise_alim", False))
+        st.session_state.firm = cfg["name"]
+        st.session_state.sheet_id = cfg["sheet_id"]
+        st.session_state.has_ise_alim = bool(cfg.get("has_ise_alim", False))
+        st.session_state.gids = cfg.get("gids", {})
         loading_placeholder.empty()
         st.rerun()
     else:
@@ -363,7 +378,7 @@ if not st.session_state.auth:
         st.stop()
 
 # =========================================================
-# 5) DASHBOARD CSS
+# 7) DASHBOARD CSS
 # =========================================================
 st.markdown("""
 <style>
@@ -477,14 +492,15 @@ hr{ border:0; border-top:1px solid #2d3139; margin:30px 0; }
 """, unsafe_allow_html=True)
 
 # =========================================================
-# 6) VERİ ÇEKME (ŞİFREYE GÖRE SHEET_ID)
+# 8) VERİ ÇEKME
 # =========================================================
 SHEET_ID = st.session_state.get("sheet_id")
 HAS_ISE_ALIM = bool(st.session_state.get("has_ise_alim", False))
+GIDS = st.session_state.get("gids", {})
 
-GENEL_GID = "0"
-SURUCU_GID = "395204791"
-HATA_OZETI_GID = "2078081831"
+GENEL_GID = str(GIDS.get("GENEL", "0"))
+SURUCU_GID = str(GIDS.get("SURUCU", "395204791"))
+HATA_OZETI_GID = str(GIDS.get("HATA", "2078081831"))
 
 @st.cache_data(ttl=30)
 def load_data(sheet_id: str, gid: str) -> pd.DataFrame:
@@ -501,7 +517,7 @@ df_surucu = load_data(SHEET_ID, SURUCU_GID)
 df_hata = load_data(SHEET_ID, HATA_OZETI_GID)
 
 # =========================================================
-# 7) SIDEBAR
+# 9) SIDEBAR
 # =========================================================
 with st.sidebar:
     st.image("https://res.cloudinary.com/dkdgj03sl/image/upload/v1769850715/Black_and_Red_Car_Animated_Logo-8_ebzsvo.png", width=180)
@@ -509,7 +525,7 @@ with st.sidebar:
     st.markdown(f"""
         <div style="background:rgba(255,255,255,0.05); padding:15px; border-radius:12px; margin-bottom:20px; border:1px solid rgba(255,255,255,0.1);">
             <div style="color:#94a3b8; font-size:10px; font-weight:700; letter-spacing:1px;">AKTİF KURUM</div>
-            <div style="color:white; font-weight:700; font-size:14px; margin-top:4px;">{safe_text(st.session_state.get('firm', 'Müşteri'))}</div>
+            <div style="color:white; font-weight:700; font-size:14px; margin-top:4px;">{safe_text(st.session_state.get('firm','Müşteri'))}</div>
         </div>
     """, unsafe_allow_html=True)
 
@@ -528,23 +544,21 @@ with st.sidebar:
     st.caption("BetterWay Intelligence v6.1")
 
 # =========================================================
-# 8) SAYFA 1: SÜRÜCÜ SORGULAMA (FIXLİ)
+# 10) SAYFA 1: SÜRÜCÜ SORGULAMA (FIX UYGULANDI)
 # =========================================================
 if menu == "🔍 Sürücü Sorgula" and secilen_surucu != "Seçiniz..." and not df_surucu.empty:
-    row = df_surucu[df_surucu["Sürücü Adı"] == secilen_surucu].iloc[0]
+    rr = df_surucu[df_surucu["Sürücü Adı"] == secilen_surucu].iloc[0]
 
-    driver_name = safe_text(row.get("Sürücü Adı", "-"))
-    egitim_yeri = safe_text(row.get("EĞİTİM YERİ", "-"))
-    egitim_turu = safe_text(row.get("EĞİTİM TÜRÜ", "-"))
-    surus_puani = safe_int_like(row.get("SÜRÜŞ PUANI", "0"), default="0")
-
-    on_test = safe_text(row.get("EĞİTİM ÖNCESİ TEST", "-"))
-    son_test = safe_text(row.get("EĞİTİM SONRASI TEST", "-"))
-    egitim_tarihi = safe_text(row.get("EĞİTİM TARİHİ", "-"))
-
-    zayif = safe_multiline(row.get("ZAYIF YÖNLER", None), default="Kritik bir zayıf yön tespit edilmemiştir.")
-    gecerlilik = safe_text(row.get("EĞİTİM GEÇERLİLİK TARİHİ", "-"))
-    kalan = safe_text(row.get("EĞİTİM YENİLEMEYE KAÇ GÜN KALDI?", "-"))
+    driver_name = safe_text(rr.get("Sürücü Adı", "-"))
+    egitim_yeri = safe_text(rr.get("EĞİTİM YERİ", "-"))
+    egitim_turu = safe_text(rr.get("EĞİTİM TÜRÜ", "-"))
+    puan = safe_text(rr.get("SÜRÜŞ PUANI", "0"))
+    on_test = safe_text(rr.get("EĞİTİM ÖNCESİ TEST", "-"))
+    son_test = safe_text(rr.get("EĞİTİM SONRASI TEST", "-"))
+    egitim_tarihi = safe_text(rr.get("EĞİTİM TARİHİ", "-"))
+    zayif = safe_multiline(rr.get("ZAYIF YÖNLER", None))
+    gecerlilik = safe_text(rr.get("EĞİTİM GEÇERLİLİK TARİHİ", "-"))
+    kalan = safe_text(rr.get("EĞİTİM YENİLEMEYE KAÇ GÜN KALDI?", "-"))
 
     st.markdown(f"""
         <div class="hero-profile">
@@ -557,7 +571,7 @@ if menu == "🔍 Sürücü Sorgula" and secilen_surucu != "Seçiniz..." and not 
                         <span>🎓 {egitim_turu}</span>
                     </p>
                 </div>
-                <div class="score-ring">{surus_puani}</div>
+                <div class="score-ring">{puan}</div>
             </div>
 
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:40px; margin-top:40px;">
@@ -582,9 +596,10 @@ if menu == "🔍 Sürücü Sorgula" and secilen_surucu != "Seçiniz..." and not 
     """, unsafe_allow_html=True)
 
 # =========================================================
-# 9) SAYFA 2: GENEL BAKIŞ (SENİN KODUN AYNI)
+# 11) SAYFA 2: GENEL BAKIŞ
 # =========================================================
 else:
+    # KPI sayısı: ACAPET’te 3 (İŞE ALIM yok)
     if HAS_ISE_ALIM:
         k1, k2, k3, k4 = st.columns(4)
     else:
@@ -592,32 +607,20 @@ else:
 
     with k1:
         v = int(pd.to_numeric(df_genel.get("KATILIMCI SAYISI", pd.Series([0])), errors="coerce").fillna(0).sum()) if not df_genel.empty else 0
-        st.markdown(
-            f'<div class="glass-card"><div class="kpi-title">Toplam Katılımcı</div><div class="kpi-value">{v}</div><div class="kpi-trend" style="color:#22c55e;">▲ Aktif Eğitim</div></div>',
-            unsafe_allow_html=True
-        )
+        st.markdown(f'<div class="glass-card"><div class="kpi-title">Toplam Katılımcı</div><div class="kpi-value">{v}</div><div class="kpi-trend" style="color:#22c55e;">▲ Aktif Eğitim</div></div>', unsafe_allow_html=True)
 
     if HAS_ISE_ALIM:
         with k2:
             ise = pd.to_numeric(df_genel.get("İŞE ALIM", pd.Series([0])), errors="coerce").fillna(0).sum() if not df_genel.empty else 0
-            st.markdown(
-                f'<div class="glass-card"><div class="kpi-title">İşe Alım</div><div class="kpi-value">{int(ise)}</div><div class="kpi-trend" style="color:#e63946;">● Akademi Çıktısı</div></div>',
-                unsafe_allow_html=True
-            )
+            st.markdown(f'<div class="glass-card"><div class="kpi-title">İşe Alım</div><div class="kpi-value">{int(ise)}</div><div class="kpi-trend" style="color:#e63946;">● Akademi Çıktısı</div></div>', unsafe_allow_html=True)
 
     with k3:
         k_gun = pd.to_numeric(df_surucu.get("EĞİTİM YENİLEMEYE KAÇ GÜN KALDI?", pd.Series([])), errors="coerce") if not df_surucu.empty else pd.Series([])
         k_sayi = int((k_gun < 30).sum()) if len(k_gun) else 0
-        st.markdown(
-            f'<div class="glass-card"><div class="kpi-title">Kritik Yenileme</div><div class="kpi-value" style="color:#e63946;">{k_sayi}</div><div class="kpi-trend" style="color:#94a3b8;">⏱️ &lt; 30 Gün</div></div>',
-            unsafe_allow_html=True
-        )
+        st.markdown(f'<div class="glass-card"><div class="kpi-title">Kritik Yenileme</div><div class="kpi-value" style="color:#e63946;">{k_sayi}</div><div class="kpi-trend" style="color:#94a3b8;">⏱️ &lt; 30 Gün</div></div>', unsafe_allow_html=True)
 
     with k4:
-        st.markdown(
-            f'<div class="glass-card"><div class="kpi-title">Eğitim Sayısı</div><div class="kpi-value">{len(df_genel) if not df_genel.empty else 0}</div><div class="kpi-trend" style="color:#94a3b8;">📋 Toplam Oturum</div></div>',
-            unsafe_allow_html=True
-        )
+        st.markdown(f'<div class="glass-card"><div class="kpi-title">Eğitim Sayısı</div><div class="kpi-value">{len(df_genel) if not df_genel.empty else 0}</div><div class="kpi-trend" style="color:#94a3b8;">📋 Toplam Oturum</div></div>', unsafe_allow_html=True)
 
     st.markdown("<div style='margin-bottom: 40px;'></div>", unsafe_allow_html=True)
 
@@ -629,18 +632,29 @@ else:
             df_h_plot = df_hata.sort_values(by=df_hata.columns[1], ascending=False).head(8)
             cat_col = df_hata.columns[0]
             val_col = df_hata.columns[1]
-            fig = px.pie(df_h_plot, values=val_col, names=cat_col, hole=0.5, color_discrete_sequence=px.colors.sequential.RdBu_r)
+
+            fig = px.pie(
+                df_h_plot,
+                values=val_col,
+                names=cat_col,
+                hole=0.5,
+                color_discrete_sequence=px.colors.sequential.RdBu_r
+            )
             fig.update_layout(
-                paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
-                margin=dict(t=20, b=20, l=0, r=0), height=350, showlegend=False,
-                annotations=[dict(text="Hatalar", x=0.5, y=0.5, font_size=18, showarrow=False, font_color="#94a3b8")]
+                paper_bgcolor='rgba(0,0,0,0)',
+                plot_bgcolor='rgba(0,0,0,0)',
+                margin=dict(t=20, b=20, l=0, r=0),
+                height=350,
+                showlegend=False,
+                annotations=[dict(text='Hatalar', x=0.5, y=0.5, font_size=18, showarrow=False, font_color='#94a3b8')]
             )
             fig.update_traces(
-                textposition="inside", textinfo="percent",
+                textposition='inside',
+                textinfo='percent',
                 hovertemplate="<b>%{label}</b><br>Hata Sayısı: %{value}<br>Oran: %{percent}",
-                marker=dict(line=dict(color="#0f1115", width=3))
+                marker=dict(line=dict(color='#0f1115', width=3))
             )
-            st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
+            st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
 
     with col_r:
         st.markdown("<h3 style='font-size:20px; margin-bottom:20px;'>🗓️ Yenileme Takvimi</h3>", unsafe_allow_html=True)
@@ -649,12 +663,10 @@ else:
             df_t["kg"] = pd.to_numeric(df_t["EĞİTİM YENİLEMEYE KAÇ GÜN KALDI?"], errors="coerce")
             df_t = df_t.sort_values(by="kg", ascending=True)
             crit_df = df_t[df_t["kg"] < 30]
+
             if not crit_df.empty:
-                for _, rr in crit_df.head(4).iterrows():
-                    st.markdown(
-                        f"""<div class="status-alert">🚨 {safe_text(rr.get('Sürücü Adı','-'))} - <span style="float:right;">{int(rr.get('kg',0))} Gün</span></div>""",
-                        unsafe_allow_html=True
-                    )
+                for _, rrow in crit_df.head(4).iterrows():
+                    st.markdown(f"""<div class="status-alert">🚨 {safe_text(rrow.get('Sürücü Adı','-'))} - <span style="float:right;">{int(rrow.get('kg',0) if pd.notnull(rrow.get('kg',0)) else 0)} Gün</span></div>""", unsafe_allow_html=True)
             else:
                 st.markdown('<div class="status-success">✅ Tüm personel süreleri güncel.</div>', unsafe_allow_html=True)
 
@@ -666,18 +678,17 @@ else:
     st.markdown("<h3 style='font-size:20px; margin-bottom:25px;'>📂 Gerçekleştirilen Eğitimler Arşivi</h3>", unsafe_allow_html=True)
 
     if not df_genel.empty and "EĞİTİM TARİHİ" in df_genel.columns:
-        df_genel = df_genel.copy()
-        df_genel["DT"] = pd.to_datetime(df_genel["EĞİTİM TARİHİ"], dayfirst=True, errors="coerce")
+        df_g = df_genel.copy()
+        df_g["DT"] = pd.to_datetime(df_g["EĞİTİM TARİHİ"], dayfirst=True, errors="coerce")
 
         f1, f2 = st.columns(2)
         with f1:
             sort_order = st.selectbox("📅 Sıralama", ["Yeniden Eskiye", "Eskiden Yeniye"])
         with f2:
-            loc_col = "EĞİTİM YERİ"
-            locs = ["Tümü"] + (sorted(df_genel[loc_col].dropna().unique().tolist()) if loc_col in df_genel.columns else [])
+            locs = ["Tümü"] + (sorted(df_g["EĞİTİM YERİ"].dropna().unique().tolist()) if "EĞİTİM YERİ" in df_g.columns else [])
             selected_loc = st.selectbox("📍 Lokasyon Filtresi", locs)
 
-        df_filtered = df_genel.copy()
+        df_filtered = df_g.copy()
         if selected_loc != "Tümü" and "EĞİTİM YERİ" in df_filtered.columns:
             df_filtered = df_filtered[df_filtered["EĞİTİM YERİ"] == selected_loc]
 
@@ -685,13 +696,9 @@ else:
 
         st.markdown("<br>", unsafe_allow_html=True)
 
-        labels = ["TARİH", "LOKASYON", "EĞİTİM TÜRÜ", "KATILIMCI"]
-        widths = [1, 1, 2, 1]
-        if HAS_ISE_ALIM:
-            labels.append("İŞE ALIM")
-            widths.append(1)
-        labels.append("BELGE")
-        widths.append(0.9)
+        # header dinamik
+        widths = [1, 1, 2, 1] + ([1] if HAS_ISE_ALIM else []) + [0.9]
+        labels = ["TARİH", "LOKASYON", "EĞİTİM TÜRÜ", "KATILIMCI"] + (["İŞE ALIM"] if HAS_ISE_ALIM else []) + ["BELGE"]
 
         h = st.columns(widths)
         for i, lab in enumerate(labels):
@@ -699,26 +706,26 @@ else:
 
         st.markdown("<div style='border-bottom: 2px solid #2d3139; margin-bottom: 15px; margin-top:5px;'></div>", unsafe_allow_html=True)
 
-        for _, rr in df_filtered.iterrows():
+        for _, row in df_filtered.iterrows():
             r = st.columns(widths)
-            r[0].write(f"<span style='font-size:13px;'>{safe_text(rr.get('EĞİTİM TARİHİ','-'))}</span>", unsafe_allow_html=True)
-            r[1].write(f"<span style='font-size:13px;'>{safe_text(rr.get('EĞİTİM YERİ','-'))}</span>", unsafe_allow_html=True)
-            r[2].write(f"<b style='font-size:14px; color:#e2e8f0;'>{safe_text(rr.get('EĞİTİM TÜRÜ','-'))}</b>", unsafe_allow_html=True)
-            r[3].write(f"<span style='font-size:13px;'>{safe_text(rr.get('KATILIMCI SAYISI','0'))} Kişi</span>", unsafe_allow_html=True)
+            r[0].write(f"<span style='font-size:13px;'>{safe_text(row.get('EĞİTİM TARİHİ','-'))}</span>", unsafe_allow_html=True)
+            r[1].write(f"<span style='font-size:13px;'>{safe_text(row.get('EĞİTİM YERİ','-'))}</span>", unsafe_allow_html=True)
+            r[2].write(f"<b style='font-size:14px; color:#e2e8f0;'>{safe_text(row.get('EĞİTİM TÜRÜ','-'))}</b>", unsafe_allow_html=True)
+            r[3].write(f"<span style='font-size:13px;'>{safe_text(row.get('KATILIMCI SAYISI','0'))} Kişi</span>", unsafe_allow_html=True)
 
-            idx_after = 4
+            idx = 4
             if HAS_ISE_ALIM:
-                ise_val = rr.get("İŞE ALIM", 0)
+                ise_val = row.get("İŞE ALIM", 0)
                 try:
                     ise_val = int(pd.to_numeric(ise_val, errors="coerce") or 0)
                 except Exception:
                     ise_val = 0
                 r[4].write(f"<span style='font-size:13px;'>{ise_val} Aday</span>", unsafe_allow_html=True)
-                idx_after = 5
+                idx = 5
 
-            link = str(rr.get("RAPOR VE SERTİFİKALAR", "#"))
+            link = str(row.get("RAPOR VE SERTİFİKALAR", "#"))
             if link and link != "nan" and link != "#":
-                r[idx_after].markdown(f'<a href="{link}" target="_blank" class="download-btn">İndir 📥</a>', unsafe_allow_html=True)
+                r[idx].markdown(f'<a href="{link}" target="_blank" class="download-btn">İndir 📥</a>', unsafe_allow_html=True)
 
             st.markdown("<div style='border-bottom: 1px solid #1e222d; margin: 8px 0;'></div>", unsafe_allow_html=True)
 
