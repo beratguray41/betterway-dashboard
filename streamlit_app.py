@@ -2,7 +2,86 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 import time
-import extra_streamlit_components as stx # pip install extra-streamlit-components
+import extra_streamlit_components as stx  # pip install extra-streamlit-components
+
+# =========================================================
+# FORCE DARK MODE (Light seçilse bile koyu görünüm)
+# =========================================================
+st.markdown("""
+<style>
+/* Tarayıcıya ve bileşenlere "dark" sinyali */
+:root, html, body, .stApp {
+  color-scheme: dark !important;
+  background: #0f1115 !important;
+}
+
+/* Streamlit'in bazı açık tema değişkenlerini bastır */
+:root {
+  --bg: #0f1115;
+  --panel: #161920;
+  --panel2: #1e222d;
+  --text: #e2e8f0;
+  --muted: #94a3b8;
+  --border: #2d3139;
+}
+
+.stApp {
+  background: radial-gradient(circle at top right, #1d1f27, var(--bg)) !important;
+  color: var(--text) !important;
+}
+
+/* Sidebar */
+section[data-testid="stSidebar"] {
+  background: var(--panel) !important;
+  border-right: 1px solid var(--border) !important;
+}
+
+/* Genel metin rengi */
+div, span, p, label, h1, h2, h3, h4, h5, h6 {
+  color: var(--text) !important;
+}
+
+/* Inputs */
+div[data-testid="stTextInput"] input,
+div[data-testid="stNumberInput"] input,
+div[data-testid="stTextArea"] textarea,
+div[data-testid="stSelectbox"] > div,
+div[data-testid="stMultiSelect"] > div,
+div[data-testid="stDateInput"] > div {
+  background: rgba(255,255,255,0.06) !important;
+  color: var(--text) !important;
+  border: 1px solid rgba(255,255,255,0.18) !important;
+  border-radius: 12px !important;
+}
+
+/* Dropdown listbox */
+div[role="listbox"] {
+  background: #11141a !important;
+  border: 1px solid rgba(255,255,255,0.14) !important;
+}
+div[role="option"] {
+  color: var(--text) !important;
+}
+
+/* Radio/checkbox label */
+div[data-testid="stRadio"] label,
+div[data-testid="stCheckbox"] label {
+  color: var(--text) !important;
+}
+
+/* Expander */
+details, summary {
+  background: rgba(255,255,255,0.03) !important;
+  border: 1px solid rgba(255,255,255,0.08) !important;
+  border-radius: 14px !important;
+}
+
+/* Plotly container */
+.js-plotly-plot, .plot-container {
+  background: transparent !important;
+}
+</style>
+""", unsafe_allow_html=True)
 
 # =========================================================
 # 1) SAYFA AYARLARI
@@ -288,23 +367,18 @@ if not st.session_state.auth:
     show_loading_animation(loading_placeholder)
     
     # B) Çerezi Kontrol Et
-    # Not: extra-streamlit-components ilk açılışta veriyi çekmekte gecikebilir.
-    # Bu yüzden loading ekranı varken küçük bir bekleme (simülasyon) ekleyerek titremeyi önlüyoruz.
-    time.sleep(1.2) # Estetik bekleme süresi (titremeyi engeller)
-    
+    time.sleep(1.2)  # Estetik bekleme süresi (titremeyi engeller)
     cookie_val = cookie_manager.get('betterway_auth_token')
     
     if cookie_val and cookie_val in PASSWORDS:
-        # Çerez bulundu, giriş yap
         st.session_state.auth = True
         st.session_state.firm = PASSWORDS[cookie_val]
-        loading_placeholder.empty() # Loading ekranını temizle
-        st.rerun() # Dashboard'u yükle
+        loading_placeholder.empty()
+        st.rerun()
     else:
-        # Çerez yok, Login ekranına düş
-        loading_placeholder.empty() # Loading ekranını temizle
+        loading_placeholder.empty()
         login_screen()
-        st.stop() # Dashboard kodlarının çalışmasını engelle
+        st.stop()
 
 # =========================================================
 # 3) DASHBOARD (ANA İÇERİK - SADECE GİRİŞ YAPILMIŞSA ÇALIŞIR)
@@ -327,12 +401,11 @@ st.markdown("""
     [data-testid="stSidebar"] {
         background-color: #161920;
         border-right: 1px solid #2d3139;
-        display: flex !important; /* Sidebar'ı login'den sonra geri getir */
+        display: flex !important;
     }
     
     header { display: block !important; }
 
-    /* Modern Kart Yapısı */
     .glass-card {
         background: rgba(255, 255, 255, 0.03);
         border: 1px solid rgba(255, 255, 255, 0.08);
@@ -345,12 +418,10 @@ st.markdown("""
         background: rgba(255, 255, 255, 0.05);
     }
 
-    /* KPI Metrikleri */
     .kpi-title { color: #94a3b8; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
     .kpi-value { color: #ffffff; font-size: 32px; font-weight: 700; margin-top: 8px; }
     .kpi-trend { font-size: 12px; margin-top: 4px; }
     
-    /* Sürücü Profil Kartı */
     .hero-profile {
         background: linear-gradient(135deg, #1e222d 0%, #161920 100%);
         border-radius: 24px;
@@ -420,7 +491,6 @@ st.markdown("""
         color: white !important;
     }
     
-    /* Arşiv Başlık Stili */
     .archive-header {
         font-size: 12px;
         color: #94a3b8;
@@ -446,7 +516,8 @@ def load_data(gid):
         df = pd.read_csv(url)
         df.columns = df.columns.str.strip()
         return df
-    except: return pd.DataFrame()
+    except:
+        return pd.DataFrame()
 
 df_genel = load_data(GENEL_GID)
 df_surucu = load_data(SURUCU_GID)
@@ -456,7 +527,6 @@ df_hata = load_data(HATA_OZETI_GID)
 with st.sidebar:
     st.image("https://res.cloudinary.com/dkdgj03sl/image/upload/v1769850715/Black_and_Red_Car_Animated_Logo-8_ebzsvo.png", width=180)
     
-    # Aktif Firma Bilgisi
     st.markdown(f"""
         <div style="background:rgba(255,255,255,0.05); padding:15px; border-radius:12px; margin-bottom:20px; border:1px solid rgba(255,255,255,0.1);">
             <div style="color:#94a3b8; font-size:10px; font-weight:700; letter-spacing:1px;">AKTİF KURUM</div>
@@ -474,8 +544,10 @@ with st.sidebar:
         if not df_surucu.empty:
             ismler = sorted(df_surucu['Sürücü Adı'].dropna().unique().tolist())
             secilen_surucu = st.selectbox("Personel Ara", options=["Seçiniz..."] + ismler)
-        else: secilen_surucu = "Seçiniz..."
-    else: secilen_surucu = "Seçiniz..."
+        else:
+            secilen_surucu = "Seçiniz..."
+    else:
+        secilen_surucu = "Seçiniz..."
 
     st.markdown("---")
     st.caption("BetterWay Intelligence v6.1")
@@ -539,7 +611,6 @@ else:
     with col_l:
         st.markdown("<h3 style='font-size:20px; margin-bottom:20px;'>⚠️ En Sık Rastlanan Uygunsuzluklar</h3>", unsafe_allow_html=True)
         if not df_hata.empty:
-            # Gelişmiş Premium Donut Chart Tasarımı
             df_h_plot = df_hata.sort_values(by=df_hata.columns[1], ascending=False).head(8)
             cat_col = df_hata.columns[0]
             val_col = df_hata.columns[1]
@@ -548,8 +619,8 @@ else:
                 df_h_plot, 
                 values=val_col, 
                 names=cat_col,
-                hole=0.5, # Donut görünümü
-                color_discrete_sequence=px.colors.sequential.RdBu_r # Kırmızı ton ağırlıklı
+                hole=0.5,
+                color_discrete_sequence=px.colors.sequential.RdBu_r
             )
             
             fig.update_layout(
@@ -557,15 +628,15 @@ else:
                 plot_bgcolor='rgba(0,0,0,0)',
                 margin=dict(t=20, b=20, l=0, r=0),
                 height=350,
-                showlegend=False, # Legend kapalı, detaylar hover'da
+                showlegend=False,
                 annotations=[dict(text='Hatalar', x=0.5, y=0.5, font_size=18, showarrow=False, font_color='#94a3b8')]
             )
             
             fig.update_traces(
                 textposition='inside', 
-                textinfo='percent', # Dilim içinde sadece oran
-                hovertemplate = "<b>%{label}</b><br>Hata Sayısı: %{value}<br>Oran: %{percent}", # Hover detayları
-                marker=dict(line=dict(color='#0f1115', width=3)) # Dilimler arası modern boşluk
+                textinfo='percent',
+                hovertemplate="<b>%{label}</b><br>Hata Sayısı: %{value}<br>Oran: %{percent}",
+                marker=dict(line=dict(color='#0f1115', width=3))
             )
             
             st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
@@ -592,7 +663,6 @@ else:
     if not df_genel.empty:
         df_genel['DT'] = pd.to_datetime(df_genel['EĞİTİM TARİHİ'], dayfirst=True, errors='coerce')
         
-        # --- FİLTRELEME ALANI ---
         f1, f2 = st.columns(2)
         with f1:
             sort_order = st.selectbox("📅 Sıralama", ["Yeniden Eskiye", "Eskiden Yeniye"])
@@ -600,7 +670,6 @@ else:
             locs = ["Tümü"] + sorted(df_genel['EĞİTİM YERİ'].dropna().unique().tolist())
             selected_loc = st.selectbox("📍 Lokasyon Filtresi", locs)
         
-        # Filtreleme Mantığı
         df_filtered = df_genel.copy()
         if selected_loc != "Tümü":
             df_filtered = df_filtered[df_filtered['EĞİTİM YERİ'] == selected_loc]
@@ -612,7 +681,6 @@ else:
 
         st.markdown("<br>", unsafe_allow_html=True)
         
-        # --- BAŞLIK SATIRI (HEADER) ---
         h = st.columns([1, 1, 2, 1, 1, 0.8])
         h[0].markdown('<div class="archive-header">TARİH</div>', unsafe_allow_html=True)
         h[1].markdown('<div class="archive-header">LOKASYON</div>', unsafe_allow_html=True)
@@ -622,7 +690,6 @@ else:
         h[5].markdown('<div class="archive-header">BELGE</div>', unsafe_allow_html=True)
         st.markdown("<div style='border-bottom: 2px solid #2d3139; margin-bottom: 15px; margin-top:5px;'></div>", unsafe_allow_html=True)
 
-        # --- LİSTELEME ---
         for _, row in df_filtered.iterrows():
             with st.container():
                 r = st.columns([1, 1, 2, 1, 1, 0.8])
@@ -632,8 +699,8 @@ else:
                 r[3].write(f"<span style='font-size:13px;'>{row.get('KATILIMCI SAYISI','0')} Kişi</span>", unsafe_allow_html=True)
                 r[4].write(f"<span style='font-size:13px;'>{int(row.get('İŞE ALIM', 0)) if pd.notnull(row.get('İŞE ALIM')) else 0} Aday</span>", unsafe_allow_html=True)
                 
-                link = str(row.get('RAPOR VE SERTİFİKALAR','#'))
-                if link != "nan" and link != "#": 
+                link = str(row.get('RAPOR VE SERTİFİKALAR', '#'))
+                if link != "nan" and link != "#":
                     r[5].markdown(f'<a href="{link}" target="_blank" class="download-btn">İndir 📥</a>', unsafe_allow_html=True)
                 st.markdown("<div style='border-bottom: 1px solid #1e222d; margin: 8px 0;'></div>", unsafe_allow_html=True)
 
