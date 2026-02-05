@@ -21,7 +21,7 @@ cookie_manager = get_manager()
 # 3) AUTH & LOGIN ALTYAPISI (PREMIUM)
 # =========================================================
 PASSWORDS = {
-    "betterway2026": "BetterWay Akademi",
+    "Karınca2025.": "KARINCA LOJİSTİK",
     "betterway123": "Demo Firma"
 }
 
