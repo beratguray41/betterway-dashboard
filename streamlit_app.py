@@ -5,17 +5,16 @@ import time
 import extra_streamlit_components as stx  # pip install extra-streamlit-components
 
 # =========================================================
-# FORCE DARK MODE (Light seçilse bile koyu görünüm)
+# FORCE DARK MODE (Login background'ını ezmeden)
 # =========================================================
 st.markdown("""
 <style>
 /* Tarayıcıya ve bileşenlere "dark" sinyali */
-:root, html, body, .stApp {
+:root, html, body {
   color-scheme: dark !important;
-  background: #0f1115 !important;
 }
 
-/* Streamlit'in bazı açık tema değişkenlerini bastır */
+/* Streamlit bazen light tema değişkenleri basıyor; renkleri sabitle */
 :root {
   --bg: #0f1115;
   --panel: #161920;
@@ -25,10 +24,8 @@ st.markdown("""
   --border: #2d3139;
 }
 
-.stApp {
-  background: radial-gradient(circle at top right, #1d1f27, var(--bg)) !important;
-  color: var(--text) !important;
-}
+/* DİKKAT: .stApp background'ını burada ZORLAMIYORUZ!
+   Login ekranındaki background image çalışsın diye. */
 
 /* Sidebar */
 section[data-testid="stSidebar"] {
@@ -38,7 +35,7 @@ section[data-testid="stSidebar"] {
 
 /* Genel metin rengi */
 div, span, p, label, h1, h2, h3, h4, h5, h6 {
-  color: var(--text) !important;
+  color: var(--text);
 }
 
 /* Inputs */
@@ -60,12 +57,6 @@ div[role="listbox"] {
   border: 1px solid rgba(255,255,255,0.14) !important;
 }
 div[role="option"] {
-  color: var(--text) !important;
-}
-
-/* Radio/checkbox label */
-div[data-testid="stRadio"] label,
-div[data-testid="stCheckbox"] label {
   color: var(--text) !important;
 }
 
