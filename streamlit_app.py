@@ -3,6 +3,7 @@ import pandas as pd
 import plotly.express as px
 import time
 import extra_streamlit_components as stx  # pip install extra-streamlit-components
+import html
 
 # =========================================================
 # FORCE DARK MODE (Login background'ını ezmeden)
@@ -56,6 +57,32 @@ details, summary{
 """, unsafe_allow_html=True)
 
 # =========================================================
+# 0) HELPERS (PERSONEL SAYFASI FIX)
+# =========================================================
+def safe_text(v, default="-"):
+    """HTML kırılmasın diye metni escape eder."""
+    s = "" if v is None else str(v)
+    s = s.strip()
+    if not s or s.lower() == "nan":
+        s = default
+    return html.escape(s)
+
+def safe_multiline(v, default="Kritik bir zayıf yön tespit edilmemiştir."):
+    """Satır sonlarını <br> yapar + escape eder."""
+    s = "" if v is None else str(v)
+    s = s.replace("\r\n", "\n").replace("\r", "\n").strip()
+    if not s or s.lower() == "nan":
+        s = default
+    s = html.escape(s)
+    return s.replace("\n", "<br/>")
+
+def safe_int_like(v, default="0"):
+    s = "" if v is None else str(v).strip()
+    if not s or s.lower() == "nan":
+        return default
+    return html.escape(s)
+
+# =========================================================
 # 0) FİRMA KONFİG (ŞİFRE -> SHEET)
 # =========================================================
 FIRMS = {
@@ -72,7 +99,6 @@ FIRMS = {
         "has_ise_alim": False,  # ACAPET'te İŞE ALIM kolonu yok
     },
 
-    # İstersen demo da ekleyebilirsin:
     "betterway123": {
         "name": "Demo Firma",
         "sheet_id": "1Q-VMr9_wz7Op-tutiYePUhZi3OKmyITMKJmtqQuN1YU",
@@ -483,7 +509,7 @@ with st.sidebar:
     st.markdown(f"""
         <div style="background:rgba(255,255,255,0.05); padding:15px; border-radius:12px; margin-bottom:20px; border:1px solid rgba(255,255,255,0.1);">
             <div style="color:#94a3b8; font-size:10px; font-weight:700; letter-spacing:1px;">AKTİF KURUM</div>
-            <div style="color:white; font-weight:700; font-size:14px; margin-top:4px;">{st.session_state.get('firm', 'Müşteri')}</div>
+            <div style="color:white; font-weight:700; font-size:14px; margin-top:4px;">{safe_text(st.session_state.get('firm', 'Müşteri'))}</div>
         </div>
     """, unsafe_allow_html=True)
 
@@ -502,57 +528,68 @@ with st.sidebar:
     st.caption("BetterWay Intelligence v6.1")
 
 # =========================================================
-# 8) SAYFA 1: SÜRÜCÜ SORGULAMA
+# 8) SAYFA 1: SÜRÜCÜ SORGULAMA (FIXLİ)
 # =========================================================
 if menu == "🔍 Sürücü Sorgula" and secilen_surucu != "Seçiniz..." and not df_surucu.empty:
     row = df_surucu[df_surucu["Sürücü Adı"] == secilen_surucu].iloc[0]
+
+    driver_name = safe_text(row.get("Sürücü Adı", "-"))
+    egitim_yeri = safe_text(row.get("EĞİTİM YERİ", "-"))
+    egitim_turu = safe_text(row.get("EĞİTİM TÜRÜ", "-"))
+    surus_puani = safe_int_like(row.get("SÜRÜŞ PUANI", "0"), default="0")
+
+    on_test = safe_text(row.get("EĞİTİM ÖNCESİ TEST", "-"))
+    son_test = safe_text(row.get("EĞİTİM SONRASI TEST", "-"))
+    egitim_tarihi = safe_text(row.get("EĞİTİM TARİHİ", "-"))
+
+    zayif = safe_multiline(row.get("ZAYIF YÖNLER", None), default="Kritik bir zayıf yön tespit edilmemiştir.")
+    gecerlilik = safe_text(row.get("EĞİTİM GEÇERLİLİK TARİHİ", "-"))
+    kalan = safe_text(row.get("EĞİTİM YENİLEMEYE KAÇ GÜN KALDI?", "-"))
 
     st.markdown(f"""
         <div class="hero-profile">
             <div style="display:flex; justify-content:space-between; align-items:center;">
                 <div>
                     <span style="color:#e63946; font-weight:700; font-size:12px; letter-spacing:2px;">AKADEMİ PERSONEL KARTI</span>
-                    <h1 style="margin:8px 0; font-size:42px; color:white;">{row.get('Sürücü Adı','-')}</h1>
+                    <h1 style="margin:8px 0; font-size:42px; color:white;">{driver_name}</h1>
                     <p style="color:#94a3b8; font-size:18px;">
-                        <span style="margin-right:20px;">📍 {row.get('EĞİTİM YERİ','-')}</span>
-                        <span>🎓 {row.get('EĞİTİM TÜRÜ','-')}</span>
+                        <span style="margin-right:20px;">📍 {egitim_yeri}</span>
+                        <span>🎓 {egitim_turu}</span>
                     </p>
                 </div>
-                <div class="score-ring">{row.get('SÜRÜŞ PUANI','0')}</div>
+                <div class="score-ring">{surus_puani}</div>
             </div>
 
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:40px; margin-top:40px;">
                 <div class="glass-card">
                     <h4 style="margin-bottom:15px; color:#e63946; display:flex; align-items:center; gap:10px;">📊 Performans Analizi</h4>
-                    <p style="margin:5px 0; color:#cbd5e1;"><b>Ön Test:</b> {row.get('EĞİTİM ÖNCESİ TEST','-')}</p>
-                    <p style="margin:5px 0; color:#cbd5e1;"><b>Son Test:</b> {row.get('EĞİTİM SONRASI TEST','-')}</p>
-                    <p style="margin:5px 0; color:#cbd5e1;"><b>Eğitim Tarihi:</b> {row.get('EĞİTİM TARİHİ','-')}</p>
+                    <p style="margin:5px 0; color:#cbd5e1;"><b>Ön Test:</b> {on_test}</p>
+                    <p style="margin:5px 0; color:#cbd5e1;"><b>Son Test:</b> {son_test}</p>
+                    <p style="margin:5px 0; color:#cbd5e1;"><b>Eğitim Tarihi:</b> {egitim_tarihi}</p>
                 </div>
 
                 <div class="glass-card">
                     <h4 style="margin-bottom:15px; color:#e63946; display:flex; align-items:center; gap:10px;">⚠️ Gelişim Alanları</h4>
-                    <p style="color:#cbd5e1; line-height:1.6;">{row.get('ZAYIF YÖNLER','Kritik bir zayıf yön tespit edilmemiştir.')}</p>
+                    <p style="color:#cbd5e1; line-height:1.6;">{zayif}</p>
                 </div>
             </div>
 
             <div style="margin-top:30px; padding:20px; background:rgba(255,255,255,0.03); border-radius:12px; display:flex; justify-content:space-between;">
-                <span style="color:#94a3b8;">📅 Geçerlilik: <b>{row.get('EĞİTİM GEÇERLİLİK TARİHİ','-')}</b></span>
-                <span style="color:#e63946; font-weight:700;">⏳ {row.get('EĞİTİM YENİLEMEYE KAÇ GÜN KALDI?','-')} GÜN KALDI</span>
+                <span style="color:#94a3b8;">📅 Geçerlilik: <b>{gecerlilik}</b></span>
+                <span style="color:#e63946; font-weight:700;">⏳ {kalan} GÜN KALDI</span>
             </div>
         </div>
     """, unsafe_allow_html=True)
 
 # =========================================================
-# 9) SAYFA 2: GENEL BAKIŞ
+# 9) SAYFA 2: GENEL BAKIŞ (SENİN KODUN AYNI)
 # =========================================================
 else:
-    # KPI kart sayısı ACAPET'te 3'e düşsün (İŞE ALIM yok)
     if HAS_ISE_ALIM:
         k1, k2, k3, k4 = st.columns(4)
     else:
-        k1, k3, k4 = st.columns(3)  # k2 yok
+        k1, k3, k4 = st.columns(3)
 
-    # KPI-1 Toplam Katılımcı
     with k1:
         v = int(pd.to_numeric(df_genel.get("KATILIMCI SAYISI", pd.Series([0])), errors="coerce").fillna(0).sum()) if not df_genel.empty else 0
         st.markdown(
@@ -560,7 +597,6 @@ else:
             unsafe_allow_html=True
         )
 
-    # KPI-2 İşe Alım (Sadece Karınca/Demo)
     if HAS_ISE_ALIM:
         with k2:
             ise = pd.to_numeric(df_genel.get("İŞE ALIM", pd.Series([0])), errors="coerce").fillna(0).sum() if not df_genel.empty else 0
@@ -569,7 +605,6 @@ else:
                 unsafe_allow_html=True
             )
 
-    # KPI-3 Kritik Yenileme
     with k3:
         k_gun = pd.to_numeric(df_surucu.get("EĞİTİM YENİLEMEYE KAÇ GÜN KALDI?", pd.Series([])), errors="coerce") if not df_surucu.empty else pd.Series([])
         k_sayi = int((k_gun < 30).sum()) if len(k_gun) else 0
@@ -578,7 +613,6 @@ else:
             unsafe_allow_html=True
         )
 
-    # KPI-4 Eğitim Sayısı
     with k4:
         st.markdown(
             f'<div class="glass-card"><div class="kpi-title">Eğitim Sayısı</div><div class="kpi-value">{len(df_genel) if not df_genel.empty else 0}</div><div class="kpi-trend" style="color:#94a3b8;">📋 Toplam Oturum</div></div>',
@@ -589,7 +623,6 @@ else:
 
     col_l, col_r = st.columns([1.2, 1])
 
-    # Sol: Hata Donut
     with col_l:
         st.markdown("<h3 style='font-size:20px; margin-bottom:20px;'>⚠️ En Sık Rastlanan Uygunsuzluklar</h3>", unsafe_allow_html=True)
         if not df_hata.empty and df_hata.shape[1] >= 2:
@@ -609,7 +642,6 @@ else:
             )
             st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
 
-    # Sağ: Yenileme Takvimi
     with col_r:
         st.markdown("<h3 style='font-size:20px; margin-bottom:20px;'>🗓️ Yenileme Takvimi</h3>", unsafe_allow_html=True)
         if not df_surucu.empty and "EĞİTİM YENİLEMEYE KAÇ GÜN KALDI?" in df_surucu.columns:
@@ -620,7 +652,7 @@ else:
             if not crit_df.empty:
                 for _, rr in crit_df.head(4).iterrows():
                     st.markdown(
-                        f"""<div class="status-alert">🚨 {rr.get('Sürücü Adı','-')} - <span style="float:right;">{int(rr.get('kg',0))} Gün</span></div>""",
+                        f"""<div class="status-alert">🚨 {safe_text(rr.get('Sürücü Adı','-'))} - <span style="float:right;">{int(rr.get('kg',0))} Gün</span></div>""",
                         unsafe_allow_html=True
                     )
             else:
@@ -653,45 +685,28 @@ else:
 
         st.markdown("<br>", unsafe_allow_html=True)
 
-        # --- Header: ACAPET'te İŞE ALIM yok -> dinamik kolonlar
-        headers = ["EĞİTİM TARİHİ", "EĞİTİM YERİ", "EĞİTİM TÜRÜ", "KATILIMCI SAYISI"]
-        if HAS_ISE_ALIM:
-            headers.append("İŞE ALIM")
-        headers.append("RAPOR VE SERTİFİKALAR")
-
-        # Kolon genişlikleri
+        labels = ["TARİH", "LOKASYON", "EĞİTİM TÜRÜ", "KATILIMCI"]
         widths = [1, 1, 2, 1]
         if HAS_ISE_ALIM:
-            widths += [1]
-        widths += [0.9]
+            labels.append("İŞE ALIM")
+            widths.append(1)
+        labels.append("BELGE")
+        widths.append(0.9)
 
         h = st.columns(widths)
-        # header yaz
-        labels = ["TARİH", "LOKASYON", "EĞİTİM TÜRÜ", "KATILIMCI"]
-        if HAS_ISE_ALIM:
-            labels.append("İŞE ALIM")
-        labels.append("BELGE")
-
         for i, lab in enumerate(labels):
             h[i].markdown(f'<div class="archive-header">{lab}</div>', unsafe_allow_html=True)
 
         st.markdown("<div style='border-bottom: 2px solid #2d3139; margin-bottom: 15px; margin-top:5px;'></div>", unsafe_allow_html=True)
 
-        # Liste satırları
         for _, rr in df_filtered.iterrows():
             r = st.columns(widths)
-
-            # 0 Tarih
-            r[0].write(f"<span style='font-size:13px;'>{rr.get('EĞİTİM TARİHİ','-')}</span>", unsafe_allow_html=True)
-            # 1 Lokasyon
-            r[1].write(f"<span style='font-size:13px;'>{rr.get('EĞİTİM YERİ','-')}</span>", unsafe_allow_html=True)
-            # 2 Tür
-            r[2].write(f"<b style='font-size:14px; color:#e2e8f0;'>{rr.get('EĞİTİM TÜRÜ','-')}</b>", unsafe_allow_html=True)
-            # 3 Katılımcı
-            r[3].write(f"<span style='font-size:13px;'>{rr.get('KATILIMCI SAYISI','0')} Kişi</span>", unsafe_allow_html=True)
+            r[0].write(f"<span style='font-size:13px;'>{safe_text(rr.get('EĞİTİM TARİHİ','-'))}</span>", unsafe_allow_html=True)
+            r[1].write(f"<span style='font-size:13px;'>{safe_text(rr.get('EĞİTİM YERİ','-'))}</span>", unsafe_allow_html=True)
+            r[2].write(f"<b style='font-size:14px; color:#e2e8f0;'>{safe_text(rr.get('EĞİTİM TÜRÜ','-'))}</b>", unsafe_allow_html=True)
+            r[3].write(f"<span style='font-size:13px;'>{safe_text(rr.get('KATILIMCI SAYISI','0'))} Kişi</span>", unsafe_allow_html=True)
 
             idx_after = 4
-            # 4 İşe alım (varsa)
             if HAS_ISE_ALIM:
                 ise_val = rr.get("İŞE ALIM", 0)
                 try:
@@ -701,7 +716,6 @@ else:
                 r[4].write(f"<span style='font-size:13px;'>{ise_val} Aday</span>", unsafe_allow_html=True)
                 idx_after = 5
 
-            # Belge
             link = str(rr.get("RAPOR VE SERTİFİKALAR", "#"))
             if link and link != "nan" and link != "#":
                 r[idx_after].markdown(f'<a href="{link}" target="_blank" class="download-btn">İndir 📥</a>', unsafe_allow_html=True)
