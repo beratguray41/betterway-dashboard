@@ -4,8 +4,6 @@ import plotly.express as px
 import time
 import extra_streamlit_components as stx  # pip install extra-streamlit-components
 import html
-import re
-import textwrap
 
 # =========================================================
 # 1) SAYFA AYARLARI
@@ -86,7 +84,7 @@ FIRMS = {
         "sheet_id": "1Q-VMr9_wz7Op-tutiYePUhZi3OKmyITMKJmtqQuN1YU",
         "has_ise_alim": True,
         "gids": {"genel": "0", "surucu": "395204791", "hata": "2078081831"},
-    }
+    },
 }
 
 LOGIN_BG_URL = "https://res.cloudinary.com/dkdgj03sl/image/upload/v1769852261/c66a13ab-7751-4ebd-9ad5-6a2f907cb0da_1_bc0j6g.jpg"
@@ -94,23 +92,22 @@ LOGO_URL = "https://res.cloudinary.com/dkdgj03sl/image/upload/v1769926229/better
 SIDEBAR_LOGO = "https://res.cloudinary.com/dkdgj03sl/image/upload/v1769850715/Black_and_Red_Car_Animated_Logo-8_ebzsvo.png"
 
 # =========================================================
-# HELPERS (Kartta HTML taşması olmasın)
+# HELPERS (Kart bozulmasın diye)
 # =========================================================
-def esc(s, default="-") -> str:
-    s = "" if s is None else str(s)
+def safe_text(v, default="-"):
+    s = "" if v is None else str(v)
     s = s.strip()
     if (not s) or (s.lower() == "nan"):
         s = default
     return html.escape(s)
 
-def esc_multiline(s, default="Kritik bir zayıf yön tespit edilmemiştir.") -> str:
-    if s is None:
-        s = ""
-    s = str(s)
-    s = s.replace("\t", "  ")
-    s = re.sub(r"\n{3,}", "\n\n", s).strip()
+def safe_multiline_html(v, default="Kritik bir zayıf yön tespit edilmemiştir."):
+    s = "" if v is None else str(v)
+    s = s.replace("\r\n", "\n").replace("\r", "\n")
+    s = s.strip()
     if (not s) or (s.lower() == "nan"):
         s = default
+    # önce escape, sonra newline -> <br/>
     return html.escape(s).replace("\n", "<br/>")
 
 # =========================================================
@@ -122,7 +119,7 @@ def get_manager():
 cookie_manager = get_manager()
 
 # =========================================================
-# 3) LOADING (SPLASH) SCREEN
+# 3) LOADING (SPLASH)
 # =========================================================
 def show_loading_animation(placeholder):
     loading_css = f"""
@@ -225,10 +222,11 @@ def inject_login_css():
             text-align: center;
             font-size: 28px;
             font-weight: 700;
-            margin-bottom: 18px;
+            margin-bottom: 20px;
             letter-spacing: -0.5px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
         }}
-
+        
         .login-desc-1 {{
             color: #e2e8f0;
             text-align: center;
@@ -258,11 +256,12 @@ def inject_login_css():
             padding: 0 25px !important;
             font-size: 20px !important;
             height: 65px !important;
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
             text-align: center;
             letter-spacing: 6px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }}
-
+        
         div.stButton {{ width: 100%; padding-top: 20px; }}
         
         div.stButton > button {{
@@ -275,10 +274,12 @@ def inject_login_css():
             font-weight: 700 !important;
             width: 100% !important;
             height: 60px !important;
+            box-shadow: 0 10px 30px rgba(255, 69, 0, 0.3) !important;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
             text-transform: uppercase;
             letter-spacing: 1px;
         }}
-
+        
         .footer-text {{ 
             text-align: center; 
             margin-top: 45px; 
@@ -299,7 +300,7 @@ def login_screen():
         st.markdown('<div class="login-card"></div>', unsafe_allow_html=True)
         st.markdown(f'<div class="logo-container"><img src="{LOGO_URL}"></div>', unsafe_allow_html=True)
         st.markdown('<div class="login-header">Sisteme Giriş</div>', unsafe_allow_html=True)
-        
+
         st.markdown("""
             <div class="login-desc-1">
                 BetterWay Akademi yönetim paneline erişmek için lütfen yetkili şifrenizi giriniz.
@@ -365,26 +366,26 @@ st.markdown("""
 html, body, [class*="css"] { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #0f1115; }
 .stApp { background: radial-gradient(circle at top right, #1d1f27, #0f1115) !important; }
 
-[data-testid="stSidebar"] { background-color: #161920; border-right: 1px solid #2d3139; display: flex !important; }
-header { display: block !important; }
+[data-testid="stSidebar"] { background-color:#161920; border-right: 1px solid #2d3139; display:flex !important; }
+header { display:block !important; }
 
-.glass-card {
+.glass-card{
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 16px;
   padding: 24px;
   transition: all 0.3s ease;
 }
-.glass-card:hover {
+.glass-card:hover{
   border-color: rgba(230, 57, 70, 0.4);
   background: rgba(255, 255, 255, 0.05);
 }
 
-.kpi-title { color: #94a3b8; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
-.kpi-value { color: #ffffff; font-size: 32px; font-weight: 700; margin-top: 8px; }
-.kpi-trend { font-size: 12px; margin-top: 4px; }
+.kpi-title{ color:#94a3b8; font-size:14px; font-weight:600; text-transform:uppercase; letter-spacing:1px; }
+.kpi-value{ color:#fff; font-size:32px; font-weight:700; margin-top:8px; }
+.kpi-trend{ font-size:12px; margin-top:4px; }
 
-.hero-profile {
+.hero-profile{
   background: linear-gradient(135deg, #1e222d 0%, #161920 100%);
   border-radius: 24px;
   padding: 40px;
@@ -394,18 +395,18 @@ header { display: block !important; }
   overflow: hidden;
 }
 
-.score-ring {
+.score-ring{
   background: transparent;
   border: 4px solid #e63946;
   color: #e63946;
-  width: 100px; height: 100px;
-  border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 32px; font-weight: 800;
+  width:100px; height:100px;
+  border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-size:32px; font-weight:800;
   box-shadow: 0 0 20px rgba(230, 57, 70, 0.2);
 }
 
-.status-alert {
+.status-alert{
   background: rgba(230, 57, 70, 0.1);
   color: #ff4d4d;
   padding: 12px 20px;
@@ -414,7 +415,7 @@ header { display: block !important; }
   font-weight: 500;
   margin-bottom: 10px;
 }
-.status-success {
+.status-success{
   background: rgba(34, 197, 94, 0.1);
   color: #4ade80;
   padding: 12px 20px;
@@ -423,38 +424,34 @@ header { display: block !important; }
   font-weight: 500;
 }
 
-.download-btn {
-  background: #e63946;
-  color: white !important;
-  padding: 10px 20px;
-  border-radius: 10px;
-  text-decoration: none;
-  font-size: 14px;
-  font-weight: 700;
-  transition: 0.3s all ease;
-  box-shadow: 0 4px 12px rgba(230, 57, 70, 0.3);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  border: none;
+.download-btn{
+  background:#e63946;
+  color:white !important;
+  padding:10px 20px;
+  border-radius:10px;
+  text-decoration:none;
+  font-size:14px;
+  font-weight:700;
+  transition:0.3s all ease;
+  box-shadow:0 4px 12px rgba(230, 57, 70, 0.3);
+  display:inline-flex; align-items:center; justify-content:center; gap:8px;
+  border:none;
 }
-.download-btn:hover {
-  background: #ff4d4d;
+.download-btn:hover{
+  background:#ff4d4d;
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(230, 57, 70, 0.5);
-  color: white !important;
+  box-shadow:0 6px 20px rgba(230, 57, 70, 0.5);
+  color:white !important;
 }
 
-.archive-header {
+.archive-header{
   font-size: 12px;
   color: #94a3b8;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 1px;
 }
-
-hr { border: 0; border-top: 1px solid #2d3139; margin: 30px 0; }
+hr{ border:0; border-top:1px solid #2d3139; margin:30px 0; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -484,15 +481,14 @@ df_surucu = load_data(SHEET_ID, SURUCU_GID)
 df_hata = load_data(SHEET_ID, HATA_OZETI_GID)
 
 # =========================================================
-# 8) SIDEBAR NAVİGASYON
+# 8) SIDEBAR
 # =========================================================
 with st.sidebar:
     st.image(SIDEBAR_LOGO, width=180)
-
     st.markdown(f"""
         <div style="background:rgba(255,255,255,0.05); padding:15px; border-radius:12px; margin-bottom:20px; border:1px solid rgba(255,255,255,0.1);">
             <div style="color:#94a3b8; font-size:10px; font-weight:700; letter-spacing:1px;">AKTİF KURUM</div>
-            <div style="color:white; font-weight:700; font-size:14px; margin-top:4px;">{st.session_state.get('firm', 'Müşteri')}</div>
+            <div style="color:white; font-weight:700; font-size:14px; margin-top:4px;">{safe_text(st.session_state.get('firm','Müşteri'))}</div>
         </div>
     """, unsafe_allow_html=True)
 
@@ -500,7 +496,7 @@ with st.sidebar:
 
     if menu == "🔍 Sürücü Sorgula":
         if not df_surucu.empty and "Sürücü Adı" in df_surucu.columns:
-            ismler = sorted(df_surucu["Sürücü Adı"].dropna().unique().tolist())
+            ismler = sorted(df_surucu['Sürücü Adı'].dropna().unique().tolist())
             secilen_surucu = st.selectbox("Personel Ara", options=["Seçiniz..."] + ismler)
         else:
             secilen_surucu = "Seçiniz..."
@@ -508,20 +504,26 @@ with st.sidebar:
         secilen_surucu = "Seçiniz..."
 
     st.markdown("---")
-    st.caption("BetterWay Intelligence v6.3")
+    st.caption("BetterWay Intelligence v6.4")
 
 # =========================================================
-# 9) DURUM 1: SÜRÜCÜ SORGULAMA (Kart FIX + Tarih eklendi)
+# 9) SÜRÜCÜ SORGULAMA (ESKİ ÇALIŞAN KART + GÜVENLİ METİN)
 # =========================================================
 if menu == "🔍 Sürücü Sorgula" and secilen_surucu != "Seçiniz..." and not df_surucu.empty:
-    row = df_surucu[df_surucu["Sürücü Adı"] == secilen_surucu].iloc[0]
+    row = df_surucu[df_surucu['Sürücü Adı'] == secilen_surucu].iloc[0]
 
-    ad = esc(row.get("Sürücü Adı", "-"))
-    yer = esc(row.get("EĞİTİM YERİ", "-"))
-    tur = esc(row.get("EĞİTİM TÜRÜ", "-"))
-    tarih = esc(row.get("EĞİTİM TARİHİ", "-"))
+    ad = safe_text(row.get('Sürücü Adı', '-'))
+    yer = safe_text(row.get('EĞİTİM YERİ', '-'))
+    tur = safe_text(row.get('EĞİTİM TÜRÜ', '-'))
+    tarih = safe_text(row.get('EĞİTİM TARİHİ', '-'))
+    puan = safe_text(row.get('SÜRÜŞ PUANI', '0'))
+    on_test = safe_text(row.get('EĞİTİM ÖNCESİ TEST', '-'))
+    son_test = safe_text(row.get('EĞİTİM SONRASI TEST', '-'))
+    zayif = safe_multiline_html(row.get('ZAYIF YÖNLER', None))
+    gec = safe_text(row.get('EĞİTİM GEÇERLİLİK TARİHİ', '-'))
+    kalan = safe_text(row.get('EĞİTİM YENİLEMEYE KAÇ GÜN KALDI?', '-'))
 
-    st.markdown(textwrap.dedent(f"""
+    st.markdown(f"""
         <div class="hero-profile">
             <div style="display: flex; justify-content: space-between; align-items: center;">
                 <div>
@@ -533,35 +535,35 @@ if menu == "🔍 Sürücü Sorgula" and secilen_surucu != "Seçiniz..." and not 
                         <span>📅 {tarih}</span>
                     </p>
                 </div>
-                <div class="score-ring">{esc(row.get("SÜRÜŞ PUANI","0"))}</div>
+                <div class="score-ring">{puan}</div>
             </div>
 
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:40px; margin-top:40px;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-top:40px;">
                 <div class="glass-card">
                     <h4 style="margin-bottom:15px; color:#e63946; display:flex; align-items:center; gap:10px;">📊 Performans Analizi</h4>
-                    <p style="margin:5px 0; color:#cbd5e1;"><b>Ön Test:</b> {esc(row.get("EĞİTİM ÖNCESİ TEST","-"))}</p>
-                    <p style="margin:5px 0; color:#cbd5e1;"><b>Son Test:</b> {esc(row.get("EĞİTİM SONRASI TEST","-"))}</p>
+                    <p style="margin:5px 0; color:#cbd5e1;"><b>Ön Test:</b> {on_test}</p>
+                    <p style="margin:5px 0; color:#cbd5e1;"><b>Son Test:</b> {son_test}</p>
                     <p style="margin:5px 0; color:#cbd5e1;"><b>Eğitim Tarihi:</b> {tarih}</p>
                 </div>
 
                 <div class="glass-card">
                     <h4 style="margin-bottom:15px; color:#e63946; display:flex; align-items:center; gap:10px;">⚠️ Gelişim Alanları</h4>
-                    <div style="color:#cbd5e1; line-height:1.6;">{esc_multiline(row.get("ZAYIF YÖNLER", None))}</div>
+                    <p style="color:#cbd5e1; line-height:1.6;">{zayif}</p>
                 </div>
             </div>
 
             <div style="margin-top:30px; padding:20px; background:rgba(255,255,255,0.03); border-radius:12px; display:flex; justify-content:space-between;">
-                <span style="color:#94a3b8;">📅 Geçerlilik: <b>{esc(row.get("EĞİTİM GEÇERLİLİK TARİHİ","-"))}</b></span>
-                <span style="color:#e63946; font-weight:700;">⏳ {esc(row.get("EĞİTİM YENİLEMEYE KAÇ GÜN KALDI?","-"))} GÜN KALDI</span>
+                <span style="color:#94a3b8;">📅 Geçerlilik: <b>{gec}</b></span>
+                <span style="color:#e63946; font-weight:700;">⏳ {kalan} GÜN KALDI</span>
             </div>
         </div>
-    """), unsafe_allow_html=True)
+    """, unsafe_allow_html=True)
 
 # =========================================================
-# 10) DURUM 2: GENEL BAKIŞ (TAM: KPI + pasta + yenileme + arşiv)
+# 10) GENEL BAKIŞ (TAM: KPI + pasta + yenileme + arşiv)
 # =========================================================
 else:
-    # KPI: ACAPET'te İŞE ALIM yoksa 3 kolon
+    # KPI
     if HAS_ISE_ALIM:
         k1, k2, k3, k4 = st.columns(4)
     else:
@@ -588,18 +590,16 @@ else:
 
     col_l, col_r = st.columns([1.2, 1])
 
-    # --- Sol: Pasta (ACAPET gid fix ile)
+    # Pasta
     with col_l:
         st.markdown("<h3 style='font-size:20px; margin-bottom:20px;'>⚠️ En Sık Rastlanan Uygunsuzluklar</h3>", unsafe_allow_html=True)
         if not df_hata.empty and df_hata.shape[1] >= 2:
             cat_col = df_hata.columns[0]
             val_col = df_hata.columns[1]
-
             tmp = df_hata[[cat_col, val_col]].copy()
             tmp[val_col] = pd.to_numeric(tmp[val_col], errors="coerce")
             tmp = tmp.dropna(subset=[val_col])
             tmp = tmp[tmp[val_col] > 0]
-
             if not tmp.empty:
                 tmp = tmp.sort_values(by=val_col, ascending=False).head(8)
                 fig = px.pie(tmp, values=val_col, names=cat_col, hole=0.5)
@@ -618,7 +618,7 @@ else:
         else:
             st.info("Hata Özeti verisi boş geliyor (gid/sekme kontrol).")
 
-    # --- Sağ: Yenileme Takvimi (expander geri geldi)
+    # Yenileme
     with col_r:
         st.markdown("<h3 style='font-size:20px; margin-bottom:20px;'>🗓️ Yenileme Takvimi</h3>", unsafe_allow_html=True)
         if not df_surucu.empty and "EĞİTİM YENİLEMEYE KAÇ GÜN KALDI?" in df_surucu.columns:
@@ -629,7 +629,7 @@ else:
             if not crit_df.empty:
                 for _, rr in crit_df.head(4).iterrows():
                     st.markdown(
-                        f"""<div class="status-alert">🚨 {esc(rr.get('Sürücü Adı','-'))} - <span style="float:right;">{int(rr.get('kg',0))} Gün</span></div>""",
+                        f"""<div class="status-alert">🚨 {safe_text(rr.get('Sürücü Adı','-'))} - <span style="float:right;">{int(rr.get('kg',0))} Gün</span></div>""",
                         unsafe_allow_html=True
                     )
             else:
@@ -639,7 +639,7 @@ else:
                 cols_show = [c for c in ["Sürücü Adı", "EĞİTİM YERİ", "EĞİTİM YENİLEMEYE KAÇ GÜN KALDI?"] if c in df_t.columns]
                 st.dataframe(df_t[cols_show].dropna(), use_container_width=True, hide_index=True)
 
-    # --- Arşiv (tablo geri geldi) - ACAPET'te İŞE ALIM gizle
+    # Arşiv
     st.markdown("<hr>", unsafe_allow_html=True)
     st.markdown("<h3 style='font-size:20px; margin-bottom:25px;'>📂 Gerçekleştirilen Eğitimler Arşivi</h3>", unsafe_allow_html=True)
 
@@ -660,14 +660,10 @@ else:
         if selected_loc != "Tümü" and "EĞİTİM YERİ" in df_filtered.columns:
             df_filtered = df_filtered[df_filtered['EĞİTİM YERİ'] == selected_loc]
 
-        if sort_order == "Yeniden Eskiye":
-            df_filtered = df_filtered.sort_values(by='DT', ascending=False)
-        else:
-            df_filtered = df_filtered.sort_values(by='DT', ascending=True)
+        df_filtered = df_filtered.sort_values(by='DT', ascending=(sort_order != "Yeniden Eskiye"))
 
         st.markdown("<br>", unsafe_allow_html=True)
 
-        # Header kolonları dinamik
         if HAS_ISE_ALIM:
             widths = [1, 1, 2, 1, 1, 0.8]
             h = st.columns(widths)
@@ -691,10 +687,10 @@ else:
         for _, rr in df_filtered.iterrows():
             with st.container():
                 r = st.columns(widths)
-                r[0].write(f"<span style='font-size:13px;'>{esc(rr.get('EĞİTİM TARİHİ','-'))}</span>", unsafe_allow_html=True)
-                r[1].write(f"<span style='font-size:13px;'>{esc(rr.get('EĞİTİM YERİ','-'))}</span>", unsafe_allow_html=True)
-                r[2].write(f"<b style='font-size:14px; color:#e2e8f0;'>{esc(rr.get('EĞİTİM TÜRÜ','-'))}</b>", unsafe_allow_html=True)
-                r[3].write(f"<span style='font-size:13px;'>{esc(rr.get('KATILIMCI SAYISI','0'))} Kişi</span>", unsafe_allow_html=True)
+                r[0].write(f"<span style='font-size:13px;'>{safe_text(rr.get('EĞİTİM TARİHİ','-'))}</span>", unsafe_allow_html=True)
+                r[1].write(f"<span style='font-size:13px;'>{safe_text(rr.get('EĞİTİM YERİ','-'))}</span>", unsafe_allow_html=True)
+                r[2].write(f"<b style='font-size:14px; color:#e2e8f0;'>{safe_text(rr.get('EĞİTİM TÜRÜ','-'))}</b>", unsafe_allow_html=True)
+                r[3].write(f"<span style='font-size:13px;'>{safe_text(rr.get('KATILIMCI SAYISI','0'))} Kişi</span>", unsafe_allow_html=True)
 
                 if HAS_ISE_ALIM:
                     ise_val = rr.get('İŞE ALIM', 0)
